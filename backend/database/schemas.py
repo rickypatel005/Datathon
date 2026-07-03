@@ -26,10 +26,17 @@ class UserResponse(BaseModel):
     full_name: Optional[str] = None
     role: str
     is_active: bool
+    preferences: Optional[Dict[str, Any]] = None
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class UserPreferencesUpdate(BaseModel):
+    theme: Optional[str] = None
+    email_notifs: Optional[bool] = None
+    data_sharing: Optional[bool] = None
 
 
 class TokenResponse(BaseModel):

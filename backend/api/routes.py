@@ -16,9 +16,10 @@ from database.schemas import (
     DatasetResponse, DatasetPreview, AnalyzeRequest, AnalysisResponse,
     ChatRequest, ChatResponse, VisualizeRequest, VisualizationResponse,
     TrainModelRequest, ModelResponse, ReportResponse, DashboardStats,
-    RecentActivity, UserResponse
+    RecentActivity, UserResponse, UserCreate, UserLogin, TokenResponse,
+    UserPreferencesUpdate
 )
-from auth import get_current_user
+from auth import get_current_user, hash_password, verify_password, create_access_token
 from config import settings
 from tools.analysis_tools import load_dataset, get_dataset_overview, clean_dataset, perform_eda, generate_chart_data
 from tools.ml_tools import train_classification_model, train_regression_model, train_clustering_model, save_model
@@ -33,6 +34,83 @@ router = APIRouter()
 def get_me(current_user: User = Depends(get_current_user)):
     """Get current authenticated user details."""
     return current_user
+
+
+@router.put("/users/me/preferences", response_model=UserResponse)
+def update_preferences(
+    prefs: UserPreferencesUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update user preferences (theme, notifications, data sharing)."""
+    existing = current_user.preferences or {"theme": "system", "email_notifs": True, "data_sharing": False}
+    update_data = prefs.model_dump(exclude_none=True)
+    existing.update(update_data)
+    current_user.preferences = existing
+    # Force SQLAlchemy to detect the JSON mutation
+    from sqlalchemy.orm.attributes import flag_modified
+    flag_modified(current_user, "preferences")
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.put("/users/me/password")
+def change_password(
+    payload: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Change the current user's password."""
+    current_pw = payload.get("current_password", "")
+    new_pw = payload.get("new_password", "")
+
+    if not verify_password(current_pw, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    if len(new_pw) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+
+    current_user.hashed_password = hash_password(new_pw)
+    db.commit()
+    return {"message": "Password updated successfully"}
+
+@router.post("/register", response_model=TokenResponse)
+def register(user_in: UserCreate, db: Session = Depends(get_db)):
+    """Register a new user."""
+    # Check if user exists
+    user = db.query(User).filter((User.email == user_in.email) | (User.username == user_in.username)).first()
+    if user:
+        raise HTTPException(status_code=400, detail="Email or username already registered")
+        
+    # Create new user
+    user_id = str(uuid.uuid4())
+    hashed_password = hash_password(user_in.password)
+    db_user = User(
+        id=user_id,
+        email=user_in.email,
+        username=user_in.username,
+        hashed_password=hashed_password,
+        full_name=user_in.full_name
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    
+    # Generate token
+    access_token = create_access_token(data={"sub": db_user.id})
+    return TokenResponse(access_token=access_token, user=db_user)
+
+
+@router.post("/login", response_model=TokenResponse)
+def login(user_in: UserLogin, db: Session = Depends(get_db)):
+    """Authenticate a user and return a token."""
+    user = db.query(User).filter(User.email == user_in.email).first()
+    if not user or not verify_password(user_in.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+        
+    access_token = create_access_token(data={"sub": user.id})
+    return TokenResponse(access_token=access_token, user=user)
 
 # ─── Datasets ──────────────────────────────────────────────────
 
@@ -355,10 +433,18 @@ def generate_visualization(
         request.color_column
     )
     
+    # Build insights from preprocessing steps performed
+    preprocess_steps = chart_data.pop("preprocessing_steps", [])
+    n_rows = len(df)
+    if preprocess_steps:
+        insights = f"Dataset: {n_rows} rows used (full dataset). Preprocessing applied: " + " | ".join(preprocess_steps)
+    else:
+        insights = f"Dataset: {n_rows} rows used. No preprocessing was needed (data was already clean)."
+    
     return VisualizationResponse(
         chart_type=request.chart_type,
         chart_data=chart_data,
-        insights=f"Generated {request.chart_type} chart successfully."
+        insights=insights
     )
 
 # ─── ML Models ─────────────────────────────────────────────────
@@ -428,3 +514,12 @@ def train_ml_model(
     background_tasks.add_task(run_training_task, model_record.id, dataset.file_path, request)
     
     return model_record
+
+@router.get("/models", response_model=List[ModelResponse])
+def get_models(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get all trained models for the current user."""
+    models = db.query(MLModel).join(Dataset).filter(Dataset.owner_id == current_user.id).order_by(MLModel.created_at.desc()).all()
+    return models

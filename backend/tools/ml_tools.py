@@ -8,9 +8,15 @@ import os
 from typing import Optional, Dict, Any, List, Tuple
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.cluster import KMeans, DBSCAN
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier, GradientBoostingRegressor
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge, Lasso
+from sklearn.svm import SVC, SVR
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
+from sklearn.mixture import GaussianMixture
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     mean_squared_error, r2_score, silhouette_score,
@@ -84,6 +90,18 @@ def train_classification_model(
         )
     elif algorithm == "logistic_regression":
         model = LogisticRegression(max_iter=1000, random_state=42)
+    elif algorithm == "svm":
+        model = SVC(kernel=params.get("kernel", "rbf"), probability=True, random_state=42)
+    elif algorithm == "decision_tree":
+        model = DecisionTreeClassifier(max_depth=params.get("max_depth", None), random_state=42)
+    elif algorithm == "gradient_boosting":
+        model = GradientBoostingClassifier(n_estimators=params.get("n_estimators", 100), learning_rate=params.get("learning_rate", 0.1), random_state=42)
+    elif algorithm == "knn":
+        model = KNeighborsClassifier(n_neighbors=params.get("n_neighbors", 5))
+    elif algorithm == "naive_bayes":
+        model = GaussianNB()
+    elif algorithm == "mlp":
+        model = MLPClassifier(max_iter=1000, random_state=42)
     else:
         model = RandomForestClassifier(n_estimators=100, random_state=42)
 
@@ -138,6 +156,20 @@ def train_regression_model(
             max_depth=params.get("max_depth", None),
             random_state=42,
         )
+    elif algorithm == "svr":
+        model = SVR(kernel=params.get("kernel", "rbf"))
+    elif algorithm == "decision_tree":
+        model = DecisionTreeRegressor(max_depth=params.get("max_depth", None), random_state=42)
+    elif algorithm == "gradient_boosting":
+        model = GradientBoostingRegressor(n_estimators=params.get("n_estimators", 100), learning_rate=params.get("learning_rate", 0.1), random_state=42)
+    elif algorithm == "knn":
+        model = KNeighborsRegressor(n_neighbors=params.get("n_neighbors", 5))
+    elif algorithm == "ridge":
+        model = Ridge(alpha=params.get("alpha", 1.0))
+    elif algorithm == "lasso":
+        model = Lasso(alpha=params.get("alpha", 1.0))
+    elif algorithm == "mlp":
+        model = MLPRegressor(max_iter=1000, random_state=42)
     else:
         model = RandomForestRegressor(n_estimators=100, random_state=42)
 
@@ -177,6 +209,10 @@ def train_clustering_model(
         model = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     elif algorithm == "dbscan":
         model = DBSCAN(eps=params.get("eps", 0.5), min_samples=params.get("min_samples", 5))
+    elif algorithm == "agglomerative":
+        model = AgglomerativeClustering(n_clusters=params.get("n_clusters", 3))
+    elif algorithm == "gaussian_mixture":
+        model = GaussianMixture(n_components=params.get("n_clusters", 3), random_state=42)
     else:
         model = KMeans(n_clusters=3, random_state=42, n_init=10)
 

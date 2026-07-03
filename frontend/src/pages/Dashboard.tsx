@@ -1,3 +1,4 @@
+import { fetchWithAuth } from '../utils/apiClient';
 import React, { useEffect, useState } from 'react';
 import { UploadCloud, FileText, Activity, BrainCircuit, MessageSquare, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -32,8 +33,8 @@ export function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         const [statsRes, activityRes] = await Promise.all([
-          fetch('http://localhost:8000/api/dashboard/stats'),
-          fetch('http://localhost:8000/api/dashboard/recent-activity')
+          fetchWithAuth('http://localhost:8000/api/dashboard/stats'),
+          fetchWithAuth('http://localhost:8000/api/dashboard/recent-activity')
         ]);
         
         if (statsRes.ok) {
@@ -152,3 +153,4 @@ export function Dashboard() {
     </div>
   );
 }
+

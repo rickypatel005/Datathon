@@ -1,3 +1,4 @@
+import { fetchWithAuth } from '../utils/apiClient';
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { FileText, Database, Plus, Clock, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
@@ -30,7 +31,7 @@ export function Reports() {
     if (!activeDatasetId) return;
     setIsLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/datasets/${activeDatasetId}/analyses`);
+      const res = await fetchWithAuth(`http://localhost:8000/api/datasets/${activeDatasetId}/analyses`);
       if (!res.ok) throw new Error('Failed to fetch reports');
       const data = await res.json();
       setReports(data);
@@ -58,7 +59,7 @@ export function Reports() {
     setIsGenerating(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:8000/api/analyze', {
+      const res = await fetchWithAuth('http://localhost:8000/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -207,3 +208,4 @@ export function Reports() {
     </div>
   );
 }
+

@@ -5,19 +5,39 @@ import { Dashboard } from './pages/Dashboard';
 import { Chat } from './pages/Chat';
 import { Datasets } from './pages/Datasets';
 import { Visualizations } from './pages/Visualizations';
+import { Models } from './pages/Models';
 import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { useStore } from './store/useStore';
+import { Navigate } from 'react-router-dom';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = useStore(state => state.token);
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+};
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
           <Route index element={<Dashboard />} />
           <Route path="chat" element={<Chat />} />
           <Route path="datasets" element={<Datasets />} />
           <Route path="visualizations" element={<Visualizations />} />
-          <Route path="models" element={<div className="p-4 text-center text-foreground/50 mt-10">ML Models page coming soon...</div>} />
+          <Route path="models" element={<Models />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<div className="p-4 text-center text-foreground/50 mt-10">404 - Page not found</div>} />

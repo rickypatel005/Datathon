@@ -1,3 +1,4 @@
+import { fetchWithAuth } from '../utils/apiClient';
 import React, { useState } from 'react';
 import { Send, Bot, User, BrainCircuit, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
@@ -32,7 +33,7 @@ export function Chat() {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetchWithAuth('http://localhost:8000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,3 +134,4 @@ export function Chat() {
     </div>
   );
 }
+

@@ -26,6 +26,7 @@ class User(Base):
     full_name = Column(String(200))
     role = Column(String(50), default="analyst")  # admin, analyst, viewer
     is_active = Column(Boolean, default=True)
+    preferences = Column(JSON, default=lambda: {"theme": "system", "email_notifs": True, "data_sharing": False})
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

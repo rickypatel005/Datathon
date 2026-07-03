@@ -1,3 +1,4 @@
+import { fetchWithAuth } from '../utils/apiClient';
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 import { useStore } from '../store/useStore';
@@ -23,7 +24,7 @@ export function Visualizations() {
     // Fetch preview to get column names
     const fetchColumns = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/datasets/${activeDatasetId}/preview`);
+        const res = await fetchWithAuth(`http://localhost:8000/api/datasets/${activeDatasetId}/preview`);
         if (!res.ok) throw new Error('Failed to fetch dataset info');
         const data = await res.json();
         setColumns(data.columns || []);
@@ -61,7 +62,7 @@ export function Visualizations() {
         color_column: colorColumn || null
       };
 
-      const res = await fetch('http://localhost:8000/api/visualize', {
+      const res = await fetchWithAuth('http://localhost:8000/api/visualize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -123,12 +124,13 @@ export function Visualizations() {
               <select 
                 value={chartType} 
                 onChange={e => setChartType(e.target.value)}
-                className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                className="w-full bg-secondary border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 text-sm text-foreground"
               >
                 <option value="scatter">Scatter Plot</option>
                 <option value="bar">Bar Chart</option>
                 <option value="line">Line Chart</option>
                 <option value="histogram">Histogram</option>
+                <option value="countplot">Count Plot</option>
                 <option value="boxplot">Box Plot</option>
                 <option value="pie">Pie Chart</option>
                 <option value="heatmap">Correlation Heatmap</option>
@@ -142,7 +144,7 @@ export function Visualizations() {
                   <select 
                     value={xColumn} 
                     onChange={e => setXColumn(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    className="w-full bg-secondary border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 text-sm text-foreground"
                   >
                     <option value="">-- Select Column --</option>
                     {columns.map(col => (
@@ -151,13 +153,13 @@ export function Visualizations() {
                   </select>
                 </div>
 
-                {!['histogram', 'pie'].includes(chartType) && (
+                {!['histogram', 'pie', 'countplot'].includes(chartType) && (
                   <div>
                     <label className="block text-sm font-medium mb-1 text-foreground/80">Y-Axis Column</label>
                     <select 
                       value={yColumn} 
                       onChange={e => setYColumn(e.target.value)}
-                      className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                      className="w-full bg-secondary border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 text-sm text-foreground"
                     >
                       <option value="">-- Select Column --</option>
                       {columns.map(col => (
@@ -173,7 +175,7 @@ export function Visualizations() {
                     <select 
                       value={colorColumn} 
                       onChange={e => setColorColumn(e.target.value)}
-                      className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                      className="w-full bg-secondary border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 text-sm text-foreground"
                     >
                       <option value="">-- None --</option>
                       {columns.map(col => (
@@ -254,3 +256,4 @@ export function Visualizations() {
     </div>
   );
 }
+

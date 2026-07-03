@@ -15,9 +15,12 @@ interface Dataset {
 
 interface AppState {
   user: User | null;
+  token: string | null;
   datasets: Dataset[];
   activeDatasetId: string | null;
   setUser: (user: User | null) => void;
+  setAuth: (user: User | null, token: string | null) => void;
+  logout: () => void;
   setDatasets: (datasets: Dataset[]) => void;
   setActiveDatasetId: (id: string | null) => void;
   isSidebarOpen: boolean;
@@ -45,9 +48,22 @@ applyTheme(savedTheme);
 
 export const useStore = create<AppState>((set) => ({
   user: null,
+  token: localStorage.getItem('datamind-token'),
   datasets: [],
-  activeDatasetId: '1baf1412-170c-4101-ab96-913e7ff9f096',
+  activeDatasetId: null,
   setUser: (user) => set({ user }),
+  setAuth: (user, token) => {
+    if (token) {
+      localStorage.setItem('datamind-token', token);
+    } else {
+      localStorage.removeItem('datamind-token');
+    }
+    set({ user, token });
+  },
+  logout: () => {
+    localStorage.removeItem('datamind-token');
+    set({ user: null, token: null, datasets: [], activeDatasetId: null });
+  },
   setDatasets: (datasets) => set({ datasets }),
   setActiveDatasetId: (id) => set({ activeDatasetId: id }),
   isSidebarOpen: true,
