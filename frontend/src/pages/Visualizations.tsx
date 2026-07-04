@@ -24,7 +24,7 @@ export function Visualizations() {
     // Fetch preview to get column names
     const fetchColumns = async () => {
       try {
-        const res = await fetchWithAuth(`http://localhost:8000/api/datasets/${activeDatasetId}/preview`);
+        const res = await fetchWithAuth(`http://127.0.0.1:8000/api/datasets/${activeDatasetId}/preview`);
         if (!res.ok) throw new Error('Failed to fetch dataset info');
         const data = await res.json();
         setColumns(data.columns || []);
@@ -62,7 +62,7 @@ export function Visualizations() {
         color_column: colorColumn || null
       };
 
-      const res = await fetchWithAuth('http://localhost:8000/api/visualize', {
+      const res = await fetchWithAuth('http://127.0.0.1:8000/api/visualize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

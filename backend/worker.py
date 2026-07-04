@@ -31,11 +31,15 @@ def run_analysis_task(analysis_id: str, file_path: str):
         df = load_dataset.invoke({"file_path": file_path})
         
         # Step 1: Clean
-        clean_res = clean_dataset.invoke({"df": df})
+        clean_res = clean_dataset.invoke({"file_path": file_path})
         cleaned_df = clean_res["dataframe"]
         
+        # Save cleaned dataset to a temporary file for EDA
+        cleaned_path = file_path + "_cleaned.csv"
+        cleaned_df.to_csv(cleaned_path, index=False)
+        
         # Step 2: EDA
-        eda_res = perform_eda.invoke({"df": cleaned_df})
+        eda_res = perform_eda.invoke({"file_path": cleaned_path})
         
         # Invoke CrewAI for deep analysis
         dataset_info = f"Dataset size: {cleaned_df.shape[0]} rows, {cleaned_df.shape[1]} columns. Columns: {', '.join(cleaned_df.columns)}"

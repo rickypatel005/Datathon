@@ -31,7 +31,7 @@ export function Reports() {
     if (!activeDatasetId) return;
     setIsLoading(true);
     try {
-      const res = await fetchWithAuth(`http://localhost:8000/api/datasets/${activeDatasetId}/analyses`);
+      const res = await fetchWithAuth(`http://127.0.0.1:8000/api/datasets/${activeDatasetId}/analyses`);
       if (!res.ok) throw new Error('Failed to fetch reports');
       const data = await res.json();
       setReports(data);
@@ -59,7 +59,7 @@ export function Reports() {
     setIsGenerating(true);
     setError(null);
     try {
-      const res = await fetchWithAuth('http://localhost:8000/api/analyze', {
+      const res = await fetchWithAuth('http://127.0.0.1:8000/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

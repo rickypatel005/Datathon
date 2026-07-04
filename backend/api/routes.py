@@ -133,7 +133,7 @@ async def upload_dataset(
 
     try:
         df = load_dataset.invoke({"file_path": file_path})
-        overview = get_dataset_overview.invoke({"df": df})
+        overview = get_dataset_overview.invoke({"file_path": file_path})
         
         dataset = Dataset(
             id=file_id,
@@ -250,7 +250,7 @@ def preview_dataset(
         raise HTTPException(status_code=404, detail="Dataset not found")
         
     try:
-        df = load_dataset(dataset.file_path)
+        df = load_dataset.invoke({"file_path": dataset.file_path})
         head_data = df.head(10).replace({float('nan'): None}).to_dict(orient="records")
         missing = df.isnull().sum().to_dict()
         
@@ -352,14 +352,20 @@ def chat_with_agent(
     if not llm:
         raise HTTPException(status_code=500, detail="LLM provider is not configured properly. Check your .env file.")
         
-    system_prompt_text = "You are an expert AI Data Analyst. You help the user understand their data, build machine learning models, and create visualizations."
+    dataset_name = None
+    dataset_file_path = None
+    dataset_rows = 0
+    dataset_cols = 0
+    columns_metadata = None
     
     if request.dataset_id:
         dataset = db.query(Dataset).filter(Dataset.id == request.dataset_id, Dataset.owner_id == current_user.id).first()
         if dataset:
-            system_prompt_text += f"\n\nThe user is currently looking at a dataset named '{dataset.name}'. It has {dataset.row_count} rows and {dataset.column_count} columns."
-            if dataset.columns_metadata:
-                system_prompt_text += f"\nColumns metadata: {json.dumps(dataset.columns_metadata)}"
+            dataset_name = dataset.name
+            dataset_file_path = dataset.file_path
+            dataset_rows = dataset.row_count
+            dataset_cols = dataset.column_count
+            columns_metadata = dataset.columns_metadata
                 
     session_id = request.session_id or str(uuid.uuid4())
 
@@ -376,17 +382,28 @@ def chat_with_agent(
         elif record.role == "assistant":
             chat_history.append(AIMessage(content=record.content))
 
-    # Add tools
+    # Add tools for the agent
+    from langchain_community.tools.ddg_search import DuckDuckGoSearchRun
+    search_tool = DuckDuckGoSearchRun()
+    
     tools = [
         load_dataset, get_dataset_overview, clean_dataset, perform_eda, 
         preprocess_for_visualization, generate_chart_data,
         train_classification_model, train_regression_model, 
-        train_clustering_model, save_model
+        train_clustering_model, save_model, search_tool
     ]
 
-    from langgraph.prebuilt import create_react_agent
+    from agents.chat_agent import build_chat_agent
     
-    agent_executor = create_react_agent(llm, tools=tools, state_modifier=system_prompt_text)
+    agent_executor = build_chat_agent(
+        llm=llm,
+        tools=tools,
+        dataset_name=dataset_name,
+        dataset_file_path=dataset_file_path,
+        dataset_rows=dataset_rows,
+        dataset_cols=dataset_cols,
+        columns_metadata=columns_metadata
+    )
 
     try:
         # Save user message
@@ -423,6 +440,8 @@ def chat_with_agent(
         )
     except Exception as e:
         db.rollback()
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error communicating with LLM: {str(e)}")
 
 # ─── Visualizations ────────────────────────────────────────────
@@ -440,7 +459,7 @@ def generate_visualization(
         
     df = load_dataset.invoke({"file_path": dataset.file_path})
     chart_data = generate_chart_data.invoke({
-        "df": df, 
+        "file_path": dataset.file_path, 
         "chart_type": request.chart_type, 
         "x_column": request.x_column, 
         "y_column": request.y_column, 
@@ -498,11 +517,11 @@ def train_ml_model(
             
             result = None
             if req.model_type == "classification":
-                result = train_classification_model.invoke({"df": df, "target_column": req.target_column, "algorithm": req.algorithm or "random_forest", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
+                result = train_classification_model.invoke({"file_path": file_path, "target_column": req.target_column, "algorithm": req.algorithm or "random_forest", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
             elif req.model_type == "regression":
-                result = train_regression_model.invoke({"df": df, "target_column": req.target_column, "algorithm": req.algorithm or "random_forest", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
+                result = train_regression_model.invoke({"file_path": file_path, "target_column": req.target_column, "algorithm": req.algorithm or "random_forest", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
             elif req.model_type == "clustering":
-                result = train_clustering_model.invoke({"df": df, "algorithm": req.algorithm or "kmeans", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
+                result = train_clustering_model.invoke({"file_path": file_path, "algorithm": req.algorithm or "kmeans", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
                 
             if result and "error" not in result:
                 db_model.metrics = result["metrics"]

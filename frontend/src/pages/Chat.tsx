@@ -33,7 +33,7 @@ export function Chat() {
     setIsLoading(true);
     
     try {
-      const response = await fetchWithAuth('http://localhost:8000/api/chat', {
+      const response = await fetchWithAuth('http://127.0.0.1:8000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,8 @@ export function Chat() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.detail || 'Failed to get response from AI');
       }
 
       const data = await response.json();
@@ -55,11 +56,12 @@ export function Chat() {
         role: 'assistant',
         content: data.response
       }]);
-    } catch (error) {
+    } catch (error: any) {
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         role: 'assistant',
-        content: "Sorry, I couldn't connect to the backend. Please ensure the backend server is running."
+        content: `Error: ${error.message || "I couldn't connect to the backend."}`,
+        isError: true
       }]);
     } finally {
       setIsLoading(false);

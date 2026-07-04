@@ -11,7 +11,7 @@ export function Layout() {
 
   useEffect(() => {
     if (token && !user) {
-      fetchWithAuth('http://localhost:8000/api/users/me')
+      fetchWithAuth('http://127.0.0.1:8000/api/users/me')
         .then(res => {
           if (res.ok) return res.json();
           throw new Error('Failed to fetch user');

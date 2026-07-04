@@ -23,7 +23,7 @@ export function Models() {
 
   const fetchModels = async () => {
     try {
-      const res = await fetchWithAuth('http://localhost:8000/api/models');
+      const res = await fetchWithAuth('http://127.0.0.1:8000/api/models');
       if (res.ok) {
         const data = await res.json();
         setModels(data);
@@ -35,7 +35,7 @@ export function Models() {
 
   const fetchDatasets = async () => {
     try {
-      const res = await fetchWithAuth('http://localhost:8000/api/datasets');
+      const res = await fetchWithAuth('http://127.0.0.1:8000/api/datasets');
       if (res.ok) {
         const data = await res.json();
         setDatasets(data);
@@ -60,7 +60,7 @@ export function Models() {
     
     const fetchColumns = async () => {
       try {
-        const res = await fetchWithAuth(`http://localhost:8000/api/datasets/${activeDatasetId}/preview`);
+        const res = await fetchWithAuth(`http://127.0.0.1:8000/api/datasets/${activeDatasetId}/preview`);
         if (res.ok) {
           const data = await res.json();
           setColumns(data.columns || []);
@@ -92,7 +92,7 @@ export function Models() {
         feature_columns: featureColumns.length > 0 ? featureColumns : null,
       };
 
-      const res = await fetchWithAuth('http://localhost:8000/api/train-model', {
+      const res = await fetchWithAuth('http://127.0.0.1:8000/api/train-model', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

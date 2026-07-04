@@ -38,7 +38,7 @@ export function Settings() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetchWithAuth('http://localhost:8000/api/users/me');
+        const res = await fetchWithAuth('http://127.0.0.1:8000/api/users/me');
         if (res.ok) {
           const data: UserProfile = await res.json();
           setProfile(data);
@@ -63,7 +63,7 @@ export function Settings() {
     setIsSaving(true);
     setSaveSuccess(false);
     try {
-      const res = await fetchWithAuth('http://localhost:8000/api/users/me/preferences', {
+      const res = await fetchWithAuth('http://127.0.0.1:8000/api/users/me/preferences', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -113,7 +113,7 @@ export function Settings() {
     }
 
     try {
-      const res = await fetchWithAuth('http://localhost:8000/api/users/me/password', {
+      const res = await fetchWithAuth('http://127.0.0.1:8000/api/users/me/password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),

@@ -10,7 +10,14 @@ def load_dataset(file_path: str) -> pd.DataFrame:
     """Load a dataset from file path. Supports CSV, Excel, JSON."""
     ext = os.path.splitext(file_path)[1].lower()
     if ext == ".csv":
-        return pd.read_csv(file_path)
+        try:
+            return pd.read_csv(file_path, encoding="utf-8")
+        except UnicodeDecodeError:
+            try:
+                return pd.read_csv(file_path, encoding="latin1")
+            except UnicodeDecodeError:
+                # Fallback to a broader encoding if latin1 fails
+                return pd.read_csv(file_path, encoding="cp1252")
     elif ext in (".xlsx", ".xls"):
         return pd.read_excel(file_path)
     elif ext == ".json":
@@ -20,8 +27,9 @@ def load_dataset(file_path: str) -> pd.DataFrame:
 
 
 @tool
-def get_dataset_overview(df: pd.DataFrame) -> Dict[str, Any]:
+def get_dataset_overview(file_path: str) -> Dict[str, Any]:
     """Generate a comprehensive overview of the dataset."""
+    df = load_dataset.invoke({"file_path": file_path})
     overview = {
         "shape": {"rows": int(df.shape[0]), "columns": int(df.shape[1])},
         "columns": [],
@@ -53,11 +61,12 @@ def get_dataset_overview(df: pd.DataFrame) -> Dict[str, Any]:
 
 
 @tool
-def clean_dataset(df: pd.DataFrame, strategies: Optional[Dict] = None) -> Dict[str, Any]:
+def clean_dataset(file_path: str, strategies: Optional[Dict] = None) -> Dict[str, Any]:
     """
     Clean the dataset: handle missing values, duplicates, outliers.
     Returns cleaned DataFrame and a report of changes.
     """
+    df = load_dataset.invoke({"file_path": file_path})
     report = {"changes": [], "original_shape": list(df.shape)}
     cleaned = df.copy()
 
@@ -111,8 +120,9 @@ def clean_dataset(df: pd.DataFrame, strategies: Optional[Dict] = None) -> Dict[s
 
 
 @tool
-def perform_eda(df: pd.DataFrame) -> Dict[str, Any]:
+def perform_eda(file_path: str) -> Dict[str, Any]:
     """Perform full exploratory data analysis."""
+    df = load_dataset.invoke({"file_path": file_path})
     eda = {}
 
     # Basic statistics
@@ -168,7 +178,7 @@ def perform_eda(df: pd.DataFrame) -> Dict[str, Any]:
 
 
 @tool
-def preprocess_for_visualization(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
+def preprocess_for_visualization(file_path: str) -> tuple[pd.DataFrame, list[str]]:
     """
     Full preprocessing pipeline for visualization:
     1. Drop duplicate rows
@@ -177,6 +187,7 @@ def preprocess_for_visualization(df: pd.DataFrame) -> tuple[pd.DataFrame, list[s
     4. Standard-scale numeric columns (z-score normalization) — stored as separate columns
     Returns the processed DataFrame and a list of preprocessing steps taken.
     """
+    df = load_dataset.invoke({"file_path": file_path})
     steps = []
     processed = df.copy()
 
@@ -235,7 +246,7 @@ def preprocess_for_visualization(df: pd.DataFrame) -> tuple[pd.DataFrame, list[s
 
 @tool
 def generate_chart_data(
-    df: pd.DataFrame,
+    file_path: str,
     chart_type: str,
     x_column: Optional[str] = None,
     y_column: Optional[str] = None,
@@ -246,7 +257,7 @@ def generate_chart_data(
     Runs preprocessing pipeline (dedup, impute, outlier clip, scale) before plotting.
     """
     # Run full preprocessing on the complete dataset
-    processed, preprocess_steps = preprocess_for_visualization.invoke({"df": df})
+    processed, preprocess_steps = preprocess_for_visualization.invoke({"file_path": file_path})
 
     color_palette = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#EC4899"]
 

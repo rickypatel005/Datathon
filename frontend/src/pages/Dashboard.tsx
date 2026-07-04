@@ -33,8 +33,8 @@ export function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         const [statsRes, activityRes] = await Promise.all([
-          fetchWithAuth('http://localhost:8000/api/dashboard/stats'),
-          fetchWithAuth('http://localhost:8000/api/dashboard/recent-activity')
+          fetchWithAuth('http://127.0.0.1:8000/api/dashboard/stats'),
+          fetchWithAuth('http://127.0.0.1:8000/api/dashboard/recent-activity')
         ]);
         
         if (statsRes.ok) {
