@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 100MB
 
     # JWT Auth
-    SECRET_KEY: str = "datamind-secret-key-change-in-production"
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 

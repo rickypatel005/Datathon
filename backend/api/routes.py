@@ -132,8 +132,8 @@ async def upload_dataset(
         shutil.copyfileobj(file.file, buffer)
 
     try:
-        df = load_dataset(file_path)
-        overview = get_dataset_overview(df)
+        df = load_dataset.invoke({"file_path": file_path})
+        overview = get_dataset_overview.invoke({"df": df})
         
         dataset = Dataset(
             id=file_id,
@@ -384,18 +384,9 @@ def chat_with_agent(
         train_clustering_model, save_model
     ]
 
-    from langchain.agents import create_tool_calling_agent, AgentExecutor
-    from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+    from langgraph.prebuilt import create_react_agent
     
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt_text),
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("human", "{input}"),
-        MessagesPlaceholder(variable_name="agent_scratchpad"),
-    ])
-
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    agent_executor = create_react_agent(llm, tools=tools, state_modifier=system_prompt_text)
 
     try:
         # Save user message
@@ -411,10 +402,9 @@ def chat_with_agent(
 
         # Run agent
         result = agent_executor.invoke({
-            "input": request.message,
-            "chat_history": chat_history
+            "messages": chat_history + [HumanMessage(content=request.message)]
         })
-        final_response = result["output"]
+        final_response = result["messages"][-1].content
 
         # Save AI message
         db_ai_msg = ChatHistory(
@@ -448,14 +438,14 @@ def generate_visualization(
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
         
-    df = load_dataset(dataset.file_path)
-    chart_data = generate_chart_data(
-        df, 
-        request.chart_type, 
-        request.x_column, 
-        request.y_column, 
-        request.color_column
-    )
+    df = load_dataset.invoke({"file_path": dataset.file_path})
+    chart_data = generate_chart_data.invoke({
+        "df": df, 
+        "chart_type": request.chart_type, 
+        "x_column": request.x_column, 
+        "y_column": request.y_column, 
+        "color_column": request.color_column
+    })
     
     # Build insights from preprocessing steps performed
     preprocess_steps = chart_data.pop("preprocessing_steps", [])
@@ -504,15 +494,15 @@ def train_ml_model(
         bg_db = SessionLocal()
         try:
             db_model = bg_db.query(MLModel).filter(MLModel.id == model_id).first()
-            df = load_dataset(file_path)
+            df = load_dataset.invoke({"file_path": file_path})
             
             result = None
             if req.model_type == "classification":
-                result = train_classification_model(df, req.target_column, req.algorithm or "random_forest", req.feature_columns, req.hyperparameters)
+                result = train_classification_model.invoke({"df": df, "target_column": req.target_column, "algorithm": req.algorithm or "random_forest", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
             elif req.model_type == "regression":
-                result = train_regression_model(df, req.target_column, req.algorithm or "random_forest", req.feature_columns, req.hyperparameters)
+                result = train_regression_model.invoke({"df": df, "target_column": req.target_column, "algorithm": req.algorithm or "random_forest", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
             elif req.model_type == "clustering":
-                result = train_clustering_model(df, req.algorithm or "kmeans", req.feature_columns, req.hyperparameters)
+                result = train_clustering_model.invoke({"df": df, "algorithm": req.algorithm or "kmeans", "feature_columns": req.feature_columns, "hyperparameters": req.hyperparameters})
                 
             if result and "error" not in result:
                 db_model.metrics = result["metrics"]
@@ -523,7 +513,7 @@ def train_ml_model(
                 model_dir = os.path.join(settings.UPLOAD_DIR, "models")
                 os.makedirs(model_dir, exist_ok=True)
                 model_path = os.path.join(model_dir, f"{model_id}.pkl")
-                save_model(result, model_path)
+                save_model.invoke({"model_data": result, "path": model_path})
                 db_model.model_path = model_path
             else:
                 db_model.status = "failed"

@@ -69,7 +69,7 @@ class AnalysisCrew:
         
         task6 = create_business_insights_task(self.business_agent, full_analysis_context)
         task7 = create_report_task(self.report_agent, full_analysis_context)
-        task8 = create_qa_task(self.qa_agent, "Report content will be passed from previous task context internally by CrewAI if configured sequentially, but here we just pass the full context.")
+        task8 = create_qa_task(self.qa_agent, full_analysis_context)
         
         # For simplicity in this implementation, we run them in a sequence.
         # In a fully connected CrewAI setup, output of one task feeds into another.
