@@ -63,6 +63,7 @@ class AnalysisCrew:
         task2 = create_data_cleaning_task(self.cleaning_agent, self.dataset_info, cleaning_report)
         task3 = create_eda_task(self.eda_agent, self.dataset_info, eda_results)
         task4 = create_visualization_task(self.viz_agent, self.dataset_info, eda_results)
+        task5 = create_ml_task(self.ml_agent, self.dataset_info, ml_results)
         
         full_analysis_context = f"Dataset:\n{self.dataset_info}\n\nEDA:\n{eda_results}\n\nML:\n{ml_results}"
         
@@ -79,11 +80,12 @@ class AnalysisCrew:
                 self.cleaning_agent,
                 self.eda_agent,
                 self.viz_agent,
+                self.ml_agent,
                 self.business_agent,
                 self.report_agent,
                 self.qa_agent
             ],
-            tasks=[task1, task2, task3, task4, task6, task7, task8],
+            tasks=[task1, task2, task3, task4, task5, task6, task7, task8],
             verbose=2,
             process=Process.sequential
         )

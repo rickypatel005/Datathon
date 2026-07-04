@@ -3,7 +3,20 @@ CrewAI Agent definitions for DataMind AI.
 8 specialized agents that form the autonomous analyst team.
 """
 from crewai import Agent
-
+from tools.analysis_tools import (
+    load_dataset,
+    get_dataset_overview,
+    clean_dataset,
+    perform_eda,
+    preprocess_for_visualization,
+    generate_chart_data,
+)
+from tools.ml_tools import (
+    train_classification_model,
+    train_regression_model,
+    train_clustering_model,
+    save_model,
+)
 
 def create_dataset_understanding_agent(llm=None) -> Agent:
     return Agent(
@@ -19,6 +32,7 @@ def create_dataset_understanding_agent(llm=None) -> Agent:
         verbose=True,
         allow_delegation=False,
         llm=llm,
+        tools=[load_dataset, get_dataset_overview],
     )
 
 
@@ -35,6 +49,7 @@ def create_data_cleaning_agent(llm=None) -> Agent:
         verbose=True,
         allow_delegation=False,
         llm=llm,
+        tools=[clean_dataset],
     )
 
 
@@ -51,6 +66,7 @@ def create_eda_agent(llm=None) -> Agent:
         verbose=True,
         allow_delegation=False,
         llm=llm,
+        tools=[perform_eda],
     )
 
 
@@ -67,6 +83,7 @@ def create_visualization_agent(llm=None) -> Agent:
         verbose=True,
         allow_delegation=False,
         llm=llm,
+        tools=[preprocess_for_visualization, generate_chart_data],
     )
 
 
@@ -83,6 +100,7 @@ def create_ml_engineer_agent(llm=None) -> Agent:
         verbose=True,
         allow_delegation=False,
         llm=llm,
+        tools=[train_classification_model, train_regression_model, train_clustering_model, save_model],
     )
 
 

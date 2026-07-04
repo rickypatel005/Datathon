@@ -21,10 +21,10 @@ from database.schemas import (
 )
 from auth import get_current_user, hash_password, verify_password, create_access_token
 from config import settings
-from tools.analysis_tools import load_dataset, get_dataset_overview, clean_dataset, perform_eda, generate_chart_data
+from tools.analysis_tools import load_dataset, get_dataset_overview, clean_dataset, perform_eda, generate_chart_data, preprocess_for_visualization
 from tools.ml_tools import train_classification_model, train_regression_model, train_clustering_model, save_model
 from agents.crew import AnalysisCrew, get_llm
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 router = APIRouter()
 
@@ -319,47 +319,9 @@ async def analyze_dataset(
     db.commit()
     db.refresh(analysis)
     
-    # In a real app, this would be a Celery task. For now, we simulate background work.
-    def run_analysis_task(analysis_id: str, file_path: str):
-        # We need a new DB session for the background task
-        from database.session import SessionLocal
-        bg_db = SessionLocal()
-        try:
-            db_analysis = bg_db.query(AnalysisHistory).filter(AnalysisHistory.id == analysis_id).first()
-            
-            df = load_dataset(file_path)
-            
-            # Step 1: Clean
-            clean_res = clean_dataset(df)
-            cleaned_df = clean_res["dataframe"]
-            
-            # Step 2: EDA
-            eda_res = perform_eda(cleaned_df)
-            
-            # Invoke CrewAI for deep analysis
-            dataset_info = f"Dataset size: {cleaned_df.shape[0]} rows, {cleaned_df.shape[1]} columns. Columns: {', '.join(cleaned_df.columns)}"
-            crew = AnalysisCrew(dataset_info=dataset_info, analysis_type=db_analysis.analysis_type)
-            
-            crew_report = crew.run_full_analysis(
-                cleaning_report=json.dumps(clean_res["report"]),
-                eda_results=json.dumps(eda_res)
-            )
-            
-            db_analysis.result = {
-                "cleaning": clean_res["report"],
-                "eda": eda_res,
-                "crew_report": str(crew_report)
-            }
-            db_analysis.status = "completed"
-            bg_db.commit()
-        except Exception as e:
-            db_analysis.status = "failed"
-            db_analysis.summary = str(e)
-            bg_db.commit()
-        finally:
-            bg_db.close()
-            
-    background_tasks.add_task(run_analysis_task, analysis.id, dataset.file_path)
+    # Route to Celery background task
+    from worker import run_analysis_task
+    run_analysis_task.delay(analysis.id, dataset.file_path)
     
     return analysis
 
@@ -399,16 +361,78 @@ def chat_with_agent(
             if dataset.columns_metadata:
                 system_prompt_text += f"\nColumns metadata: {json.dumps(dataset.columns_metadata)}"
                 
-    system_prompt = SystemMessage(content=system_prompt_text)
-    human_prompt = HumanMessage(content=request.message)
+    session_id = request.session_id or str(uuid.uuid4())
+
+    # Fetch history
+    history_records = db.query(ChatHistory).filter(
+        ChatHistory.session_id == session_id,
+        ChatHistory.user_id == current_user.id
+    ).order_by(ChatHistory.created_at.asc()).all()
+
+    chat_history = []
+    for record in history_records:
+        if record.role == "user":
+            chat_history.append(HumanMessage(content=record.content))
+        elif record.role == "assistant":
+            chat_history.append(AIMessage(content=record.content))
+
+    # Add tools
+    tools = [
+        load_dataset, get_dataset_overview, clean_dataset, perform_eda, 
+        preprocess_for_visualization, generate_chart_data,
+        train_classification_model, train_regression_model, 
+        train_clustering_model, save_model
+    ]
+
+    from langchain.agents import create_tool_calling_agent, AgentExecutor
+    from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
     
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt_text),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad"),
+    ])
+
+    agent = create_tool_calling_agent(llm, tools, prompt)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
     try:
-        response = llm.invoke([system_prompt, human_prompt])
+        # Save user message
+        db_user_msg = ChatHistory(
+            session_id=session_id,
+            user_id=current_user.id,
+            dataset_id=request.dataset_id,
+            role="user",
+            content=request.message
+        )
+        db.add(db_user_msg)
+        db.commit()
+
+        # Run agent
+        result = agent_executor.invoke({
+            "input": request.message,
+            "chat_history": chat_history
+        })
+        final_response = result["output"]
+
+        # Save AI message
+        db_ai_msg = ChatHistory(
+            session_id=session_id,
+            user_id=current_user.id,
+            dataset_id=request.dataset_id,
+            role="assistant",
+            content=final_response
+        )
+        db.add(db_ai_msg)
+        db.commit()
+
         return ChatResponse(
-            response=response.content,
-            session_id=request.session_id or str(uuid.uuid4())
+            response=final_response,
+            session_id=session_id
         )
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=f"Error communicating with LLM: {str(e)}")
 
 # ─── Visualizations ────────────────────────────────────────────

@@ -22,3 +22,5 @@ groq
 openai
 passlib[bcrypt]
 python-jose[cryptography]
+pytest
+pytest-cov

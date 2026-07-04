@@ -39,13 +39,13 @@ def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
-    """Decode JWT and return current user. Falls back to testuser for local dev."""
+    """Decode JWT and return current user."""
     if not credentials:
-        # Fallback to testuser for local development
-        test_user = db.query(User).filter(User.username == "testuser").first()
-        if not test_user:
-            raise HTTPException(status_code=401, detail="Not authenticated and testuser not found")
-        return test_user
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     token = credentials.credentials
     try:

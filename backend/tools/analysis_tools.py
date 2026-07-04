@@ -1,14 +1,11 @@
-"""
-Dataset analysis tools used by CrewAI agents.
-Wraps Pandas operations into callable tool functions.
-"""
 import pandas as pd
 import numpy as np
 import json
 import os
 from typing import Optional, Dict, Any, List
+from langchain.tools import tool
 
-
+@tool
 def load_dataset(file_path: str) -> pd.DataFrame:
     """Load a dataset from file path. Supports CSV, Excel, JSON."""
     ext = os.path.splitext(file_path)[1].lower()
@@ -22,6 +19,7 @@ def load_dataset(file_path: str) -> pd.DataFrame:
         raise ValueError(f"Unsupported file type: {ext}")
 
 
+@tool
 def get_dataset_overview(df: pd.DataFrame) -> Dict[str, Any]:
     """Generate a comprehensive overview of the dataset."""
     overview = {
@@ -54,6 +52,7 @@ def get_dataset_overview(df: pd.DataFrame) -> Dict[str, Any]:
     return overview
 
 
+@tool
 def clean_dataset(df: pd.DataFrame, strategies: Optional[Dict] = None) -> Dict[str, Any]:
     """
     Clean the dataset: handle missing values, duplicates, outliers.
@@ -111,6 +110,7 @@ def clean_dataset(df: pd.DataFrame, strategies: Optional[Dict] = None) -> Dict[s
     return {"dataframe": cleaned, "report": report}
 
 
+@tool
 def perform_eda(df: pd.DataFrame) -> Dict[str, Any]:
     """Perform full exploratory data analysis."""
     eda = {}
@@ -167,6 +167,7 @@ def perform_eda(df: pd.DataFrame) -> Dict[str, Any]:
     return eda
 
 
+@tool
 def preprocess_for_visualization(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
     """
     Full preprocessing pipeline for visualization:
@@ -232,6 +233,7 @@ def preprocess_for_visualization(df: pd.DataFrame) -> tuple[pd.DataFrame, list[s
     return processed, steps
 
 
+@tool
 def generate_chart_data(
     df: pd.DataFrame,
     chart_type: str,
@@ -244,7 +246,7 @@ def generate_chart_data(
     Runs preprocessing pipeline (dedup, impute, outlier clip, scale) before plotting.
     """
     # Run full preprocessing on the complete dataset
-    processed, preprocess_steps = preprocess_for_visualization(df)
+    processed, preprocess_steps = preprocess_for_visualization.invoke({"df": df})
 
     color_palette = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#EC4899"]
 

@@ -1,5 +1,7 @@
 # DataMind AI (Data Analyst AI)
 
+[![Backend Tests](https://github.com/Rishik-sai/data-analayst-ai/actions/workflows/test.yml/badge.svg)](https://github.com/Rishik-sai/data-analayst-ai/actions/workflows/test.yml)
+
 DataMind AI is an intelligent, full-stack Data Analytics platform that empowers users to upload datasets, perform automated Exploratory Data Analysis (EDA), train Machine Learning models, and chat with an AI assistant to gain insights from their data. 
 
 Built with a sleek, glassmorphism-inspired UI featuring a vibrant emerald and sky-blue palette, the platform supports seamless dark/light modes and robust JWT-based authentication.

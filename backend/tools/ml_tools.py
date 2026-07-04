@@ -6,6 +6,7 @@ import numpy as np
 import pickle
 import os
 from typing import Optional, Dict, Any, List, Tuple
+from langchain.tools import tool
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier, GradientBoostingRegressor
@@ -61,6 +62,7 @@ def _prepare_features(
     return X, y, feature_names
 
 
+@tool
 def train_classification_model(
     df: pd.DataFrame,
     target_column: str,
@@ -128,6 +130,7 @@ def train_classification_model(
     return {"model": model, "scaler": scaler, "metrics": metrics, "algorithm": algorithm, "features": features}
 
 
+@tool
 def train_regression_model(
     df: pd.DataFrame,
     target_column: str,
@@ -190,6 +193,7 @@ def train_regression_model(
     return {"model": model, "scaler": scaler, "metrics": metrics, "algorithm": algorithm, "features": features}
 
 
+@tool
 def train_clustering_model(
     df: pd.DataFrame,
     algorithm: str = "kmeans",
@@ -232,6 +236,7 @@ def train_clustering_model(
     return {"model": model, "scaler": scaler, "metrics": metrics, "algorithm": algorithm, "features": features, "labels": labels.tolist()}
 
 
+@tool
 def save_model(model_data: Dict, path: str) -> str:
     """Serialize and save model to disk."""
     os.makedirs(os.path.dirname(path), exist_ok=True)

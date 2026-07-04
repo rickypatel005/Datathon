@@ -32,6 +32,19 @@ services:
       - redis
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
+  celery_worker:
+    build:
+      context: ./backend
+    environment:
+      - DATABASE_URL=postgresql://datamind:datamind_password@db:5432/datamind_db
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+    command: celery -A worker.celery_app worker --loglevel=info
+
   frontend:
     build:
       context: ./frontend
