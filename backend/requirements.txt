@@ -5,6 +5,8 @@ langchain
 langchain-openai
 langchain-groq
 langchain-anthropic
+langchain-community
+duckduckgo-search
 sqlalchemy
 psycopg2-binary
 pandas
