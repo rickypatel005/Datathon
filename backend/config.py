@@ -11,9 +11,6 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql://datamind:datamind_password@localhost:5432/datamind_db"
 
-    # Redis
-    REDIS_URL: str = "redis://localhost:6379/0"
-
     # LLM Configuration
     OPENAI_API_KEY: Optional[str] = None
     GROQ_API_KEY: Optional[str] = None

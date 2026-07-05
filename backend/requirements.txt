@@ -16,8 +16,6 @@ python-multipart
 python-dotenv
 pydantic
 pydantic-settings
-celery
-redis
 groq
 openai
 passlib[bcrypt]

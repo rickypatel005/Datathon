@@ -319,9 +319,53 @@ async def analyze_dataset(
     db.commit()
     db.refresh(analysis)
     
-    # Route to Celery background task
-    from worker import run_analysis_task
-    run_analysis_task.delay(analysis.id, dataset.file_path)
+    def run_analysis_task(analysis_id: str, file_path: str):
+        import json
+        from database.session import SessionLocal
+        bg_db = SessionLocal()
+        try:
+            db_analysis = bg_db.query(AnalysisHistory).filter(AnalysisHistory.id == analysis_id).first()
+            if not db_analysis:
+                return
+                
+            df = load_dataset.invoke({"file_path": file_path})
+            
+            # Step 1: Clean
+            clean_res = clean_dataset.invoke({"file_path": file_path})
+            cleaned_df = clean_res["dataframe"]
+            
+            # Save cleaned dataset to a temporary file for EDA
+            cleaned_path = file_path + "_cleaned.csv"
+            cleaned_df.to_csv(cleaned_path, index=False)
+            
+            # Step 2: EDA
+            eda_res = perform_eda.invoke({"file_path": cleaned_path})
+            
+            # Invoke CrewAI for deep analysis
+            dataset_info = f"Dataset size: {cleaned_df.shape[0]} rows, {cleaned_df.shape[1]} columns. Columns: {', '.join(cleaned_df.columns)}"
+            crew = AnalysisCrew(dataset_info=dataset_info, analysis_type=db_analysis.analysis_type)
+            
+            crew_report = crew.run_full_analysis(
+                cleaning_report=json.dumps(clean_res["report"]),
+                eda_results=json.dumps(eda_res)
+            )
+            
+            db_analysis.result = {
+                "cleaning": clean_res["report"],
+                "eda": eda_res,
+                "crew_report": str(crew_report)
+            }
+            db_analysis.status = "completed"
+            bg_db.commit()
+        except Exception as e:
+            if 'db_analysis' in locals() and db_analysis:
+                db_analysis.status = "failed"
+                db_analysis.summary = str(e)
+                bg_db.commit()
+        finally:
+            bg_db.close()
+
+    background_tasks.add_task(run_analysis_task, analysis.id, dataset.file_path)
     
     return analysis
 

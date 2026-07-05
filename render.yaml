@@ -6,12 +6,6 @@ services:
     databaseName: datamind_db
     user: datamind
 
-  # Redis for Celery
-  - type: redis
-    name: datamind-redis
-    plan: free
-    ipAllowList: [] # Allows internal connections by default
-
   # FastAPI Backend
   - type: web
     name: datamind-backend
@@ -24,36 +18,8 @@ services:
         fromDatabase:
           name: datamind-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: datamind-redis
-          property: connectionString
       - key: SECRET_KEY
         sync: false # Set this securely in the Render Dashboard
-      - key: OPENAI_API_KEY
-        sync: false # Set this securely in the Render Dashboard
-      - key: GROQ_API_KEY
-        sync: false # Set this securely in the Render Dashboard
-
-  # Celery Background Worker
-  - type: worker
-    name: datamind-worker
-    env: docker
-    dockerContext: ./backend
-    dockerfilePath: ./backend/Dockerfile
-    plan: free
-    dockerCommand: "celery -A worker.celery_app worker --loglevel=info"
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: datamind-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: datamind-redis
-          property: connectionString
       - key: OPENAI_API_KEY
         sync: false # Set this securely in the Render Dashboard
       - key: GROQ_API_KEY
