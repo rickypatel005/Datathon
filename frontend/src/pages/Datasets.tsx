@@ -1,4 +1,4 @@
-import { fetchWithAuth } from '../utils/apiClient';
+import { fetchWithAuth, API_BASE_URL } from '../utils/apiClient';
 import React, { useEffect, useState, useRef } from 'react';
 import { UploadCloud, FileText, Database, Calendar, HardDrive, Trash2 } from 'lucide-react';
 import { useStore } from '../store/useStore';
@@ -27,7 +27,7 @@ export function Datasets() {
 
   const fetchDatasets = async () => {
     try {
-      const res = await fetchWithAuth('http://127.0.0.1:8000/api/datasets');
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/datasets`);
       if (!res.ok) throw new Error('Failed to fetch datasets');
       const data = await res.json();
       setDatasets(data);
@@ -39,7 +39,7 @@ export function Datasets() {
   const fetchPreview = async (id: string) => {
     setIsLoadingPreview(true);
     try {
-      const res = await fetchWithAuth(`http://127.0.0.1:8000/api/datasets/${id}/preview`);
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/datasets/${id}/preview`);
       if (!res.ok) throw new Error('Failed to fetch preview');
       const data = await res.json();
       setPreviewData(data);
@@ -72,7 +72,7 @@ export function Datasets() {
     formData.append('file', file);
 
     try {
-      const res = await fetchWithAuth('http://127.0.0.1:8000/api/upload', {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -99,7 +99,7 @@ export function Datasets() {
     }
     
     try {
-      const res = await fetchWithAuth(`http://127.0.0.1:8000/api/datasets/${id}`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/datasets/${id}`, {
         method: 'DELETE'
       });
       if (!res.ok) throw new Error('Failed to delete dataset');

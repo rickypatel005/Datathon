@@ -1,5 +1,5 @@
-import { fetchWithAuth } from '../utils/apiClient';
-import React, { useState, useEffect } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '../utils/apiClient';
+import { useState, useEffect } from "react";
 import { useStore } from '../store/useStore';
 import { FileText, Database, Plus, Clock, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -31,7 +31,7 @@ export function Reports() {
     if (!activeDatasetId) return;
     setIsLoading(true);
     try {
-      const res = await fetchWithAuth(`http://127.0.0.1:8000/api/datasets/${activeDatasetId}/analyses`);
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/datasets/${activeDatasetId}/analyses`);
       if (!res.ok) throw new Error('Failed to fetch reports');
       const data = await res.json();
       setReports(data);
@@ -59,7 +59,7 @@ export function Reports() {
     setIsGenerating(true);
     setError(null);
     try {
-      const res = await fetchWithAuth('http://127.0.0.1:8000/api/analyze', {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

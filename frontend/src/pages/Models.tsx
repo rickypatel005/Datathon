@@ -1,4 +1,4 @@
-import { fetchWithAuth } from '../utils/apiClient';
+import { fetchWithAuth, API_BASE_URL } from '../utils/apiClient';
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { BrainCircuit, Database, AlertCircle, Play, CheckCircle2, XCircle, Clock } from 'lucide-react';
@@ -16,14 +16,14 @@ export function Models() {
   const [modelType, setModelType] = useState('classification');
   const [algorithm, setAlgorithm] = useState('');
   const [targetColumn, setTargetColumn] = useState('');
-  const [featureColumns, setFeatureColumns] = useState<string[]>([]);
+  const [featureColumns] = useState<string[]>([]);
   
   const [isTraining, setIsTraining] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchModels = async () => {
     try {
-      const res = await fetchWithAuth('http://127.0.0.1:8000/api/models');
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/models`);
       if (res.ok) {
         const data = await res.json();
         setModels(data);
@@ -35,7 +35,7 @@ export function Models() {
 
   const fetchDatasets = async () => {
     try {
-      const res = await fetchWithAuth('http://127.0.0.1:8000/api/datasets');
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/datasets`);
       if (res.ok) {
         const data = await res.json();
         setDatasets(data);
@@ -60,7 +60,7 @@ export function Models() {
     
     const fetchColumns = async () => {
       try {
-        const res = await fetchWithAuth(`http://127.0.0.1:8000/api/datasets/${activeDatasetId}/preview`);
+        const res = await fetchWithAuth(`${API_BASE_URL}/api/datasets/${activeDatasetId}/preview`);
         if (res.ok) {
           const data = await res.json();
           setColumns(data.columns || []);
@@ -92,7 +92,7 @@ export function Models() {
         feature_columns: featureColumns.length > 0 ? featureColumns : null,
       };
 
-      const res = await fetchWithAuth('http://127.0.0.1:8000/api/train-model', {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/train-model`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

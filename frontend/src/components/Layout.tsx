@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import { useEffect } from "react";
 import { Sidebar } from './Sidebar';
 import { Outlet } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { fetchWithAuth } from '../utils/apiClient';
+import { fetchWithAuth, API_BASE_URL } from '../utils/apiClient';
 
 export function Layout() {
   const user = useStore(state => state.user);
@@ -11,7 +11,7 @@ export function Layout() {
 
   useEffect(() => {
     if (token && !user) {
-      fetchWithAuth('http://127.0.0.1:8000/api/users/me')
+      fetchWithAuth(`${API_BASE_URL}/api/users/me`)
         .then(res => {
           if (res.ok) return res.json();
           throw new Error('Failed to fetch user');

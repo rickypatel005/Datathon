@@ -1,4 +1,4 @@
-import { fetchWithAuth } from '../utils/apiClient';
+import { fetchWithAuth, API_BASE_URL } from '../utils/apiClient';
 import React, { useState } from 'react';
 import { Send, Bot, User, BrainCircuit, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
@@ -33,7 +33,7 @@ export function Chat() {
     setIsLoading(true);
     
     try {
-      const response = await fetchWithAuth('http://127.0.0.1:8000/api/chat', {
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

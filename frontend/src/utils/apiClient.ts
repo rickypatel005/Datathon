@@ -1,5 +1,7 @@
 import { useStore } from '../store/useStore';
 
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   const token = useStore.getState().token;
   
