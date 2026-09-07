@@ -12,6 +12,7 @@ import { Pipeline } from './pages/Pipeline';
 import { Insights } from './pages/Insights';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { NewAnalysis } from './pages/NewAnalysis';
 import { useStore } from './store/useStore';
 import { Navigate } from 'react-router-dom';
 
@@ -36,6 +37,7 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<Dashboard />} />
+          <Route path="new-analysis" element={<NewAnalysis />} />
           <Route path="pipeline" element={<Pipeline />} />
           <Route path="insights" element={<Insights />} />
           <Route path="chat" element={<Chat />} />
