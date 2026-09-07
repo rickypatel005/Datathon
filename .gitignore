@@ -20,3 +20,7 @@ htmlcov/
 .vscode/
 .idea/
 *.log
+*.db
+powershell.cmd
+powershell.bat
+

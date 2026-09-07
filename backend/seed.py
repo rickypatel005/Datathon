@@ -49,8 +49,7 @@ def seed():
         
         # Load and get overview
         print("Analyzing dataset metadata...")
-        df = load_dataset(file_path)
-        overview = get_dataset_overview(df)
+        overview = get_dataset_overview.invoke({"file_path": file_path})
         
         # Create dataset entry
         dataset = Dataset(
