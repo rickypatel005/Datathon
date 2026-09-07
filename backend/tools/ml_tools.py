@@ -62,18 +62,29 @@ def _prepare_features(
     return X, y, feature_names
 
 
+def _resolve_df(file_path: Optional[str] = None, df: Optional[Any] = None) -> pd.DataFrame:
+    if df is not None:
+        if isinstance(df, pd.DataFrame):
+            return df.copy()
+        return pd.DataFrame(df)
+    if file_path:
+        from tools.analysis_tools import load_dataset
+        return load_dataset.invoke({"file_path": file_path})
+    raise ValueError("Either file_path or df must be provided.")
+
+
 @tool
 def train_classification_model(
-    file_path: str,
-    target_column: str,
+    file_path: Optional[str] = None,
+    df: Optional[Any] = None,
+    target_column: Optional[str] = None,
     algorithm: str = "random_forest",
     feature_columns: Optional[List[str]] = None,
     hyperparameters: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Train a classification model and return metrics."""
-    from tools.analysis_tools import load_dataset
-    df = load_dataset.invoke({"file_path": file_path})
-    X, y, features = _prepare_features(df, target_column, feature_columns)
+    df_data = _resolve_df(file_path, df)
+    X, y, features = _prepare_features(df_data, target_column, feature_columns)
     if y is None:
         return {"error": f"Target column '{target_column}' not found"}
 
@@ -134,16 +145,16 @@ def train_classification_model(
 
 @tool
 def train_regression_model(
-    file_path: str,
-    target_column: str,
+    file_path: Optional[str] = None,
+    df: Optional[Any] = None,
+    target_column: Optional[str] = None,
     algorithm: str = "random_forest",
     feature_columns: Optional[List[str]] = None,
     hyperparameters: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Train a regression model and return metrics."""
-    from tools.analysis_tools import load_dataset
-    df = load_dataset.invoke({"file_path": file_path})
-    X, y, features = _prepare_features(df, target_column, feature_columns)
+    df_data = _resolve_df(file_path, df)
+    X, y, features = _prepare_features(df_data, target_column, feature_columns)
     if y is None:
         return {"error": f"Target column '{target_column}' not found"}
 
@@ -199,15 +210,15 @@ def train_regression_model(
 
 @tool
 def train_clustering_model(
-    file_path: str,
+    file_path: Optional[str] = None,
+    df: Optional[Any] = None,
     algorithm: str = "kmeans",
     feature_columns: Optional[List[str]] = None,
     hyperparameters: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Train a clustering model and return metrics."""
-    from tools.analysis_tools import load_dataset
-    df = load_dataset.invoke({"file_path": file_path})
-    X, _, features = _prepare_features(df, None, feature_columns)
+    df_data = _resolve_df(file_path, df)
+    X, _, features = _prepare_features(df_data, None, feature_columns)
 
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)

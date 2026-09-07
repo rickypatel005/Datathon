@@ -9,7 +9,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql://datamind:datamind_password@localhost:5432/datamind_db"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./datamind_dev.db")
 
     # LLM Configuration
     OPENAI_API_KEY: Optional[str] = None
@@ -23,13 +23,14 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 100MB
 
     # JWT Auth
-    SECRET_KEY: str
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-key-datathon-aida-2026")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
 
 
 settings = Settings()

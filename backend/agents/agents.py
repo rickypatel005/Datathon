@@ -2,7 +2,16 @@
 CrewAI Agent definitions for DataMind AI.
 8 specialized agents that form the autonomous analyst team.
 """
-from crewai import Agent
+try:
+    from crewai import Agent
+except (ImportError, Exception):
+    class Agent:
+        def __init__(self, *args, **kwargs):
+            self.role = kwargs.get("role", "")
+            self.goal = kwargs.get("goal", "")
+            self.backstory = kwargs.get("backstory", "")
+            self.tools = kwargs.get("tools", [])
+            self.llm = kwargs.get("llm", None)
 from tools.analysis_tools import (
     load_dataset,
     get_dataset_overview,

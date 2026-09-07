@@ -1,0 +1,550 @@
+{
+  "version": "1.0.0",
+  "contract_type": "discovery",
+  "dataset_id": "ds-mock-churn-001",
+  "dataset_name": "customer_churn.csv",
+  "file_info": {
+    "file_path": "backend/uploads/customer_churn.csv",
+    "file_type": "csv",
+    "file_size_bytes": 625952,
+    "row_count": 10000,
+    "column_count": 14,
+    "encoding": "utf-8",
+    "delimiter": ",",
+    "sheet_name": null
+  },
+  "columns": [
+    {
+      "name": "CustomerId",
+      "raw_dtype": "int64",
+      "inferred_type": "identifier",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 10000,
+      "cardinality_ratio": 1.0,
+      "is_identifier": true,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [15634602, 15647311, 15619304, 15701354, 15737888],
+      "stats": {
+        "min": 15565701.0,
+        "max": 15815690.0,
+        "mean": 15690940.57,
+        "std": 71936.19,
+        "median": 15690740.0,
+        "q25": 15628530.0,
+        "q75": 15753230.0,
+        "skewness": 0.0,
+        "kurtosis": -1.2,
+        "top_frequencies": null,
+        "mode": 15565701
+      }
+    },
+    {
+      "name": "Surname",
+      "raw_dtype": "object",
+      "inferred_type": "text",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 2932,
+      "cardinality_ratio": 0.2932,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": ["Hargrave", "Hill", "Onio", "Boni", "Mitchell"],
+      "stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "std": null,
+        "median": null,
+        "q25": null,
+        "q75": null,
+        "skewness": null,
+        "kurtosis": null,
+        "top_frequencies": {
+          "Smith": 32,
+          "Martin": 29,
+          "Brown": 24,
+          "Walker": 22,
+          "Scott": 20
+        },
+        "mode": "Smith"
+      }
+    },
+    {
+      "name": "CreditScore",
+      "raw_dtype": "int64",
+      "inferred_type": "numeric_discrete",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 460,
+      "cardinality_ratio": 0.046,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [619, 608, 502, 699, 850],
+      "stats": {
+        "min": 350.0,
+        "max": 850.0,
+        "mean": 650.53,
+        "std": 96.65,
+        "median": 652.0,
+        "q25": 584.0,
+        "q75": 718.0,
+        "skewness": -0.07,
+        "kurtosis": -0.43,
+        "top_frequencies": null,
+        "mode": 850
+      }
+    },
+    {
+      "name": "Geography",
+      "raw_dtype": "object",
+      "inferred_type": "categorical_nominal",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 3,
+      "cardinality_ratio": 0.0003,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": ["France", "Spain", "Germany"],
+      "stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "std": null,
+        "median": null,
+        "q25": null,
+        "q75": null,
+        "skewness": null,
+        "kurtosis": null,
+        "top_frequencies": {
+          "France": 5014,
+          "Germany": 2509,
+          "Spain": 2477
+        },
+        "mode": "France"
+      }
+    },
+    {
+      "name": "Gender",
+      "raw_dtype": "object",
+      "inferred_type": "categorical_nominal",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 2,
+      "cardinality_ratio": 0.0002,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": ["Female", "Male"],
+      "stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "std": null,
+        "median": null,
+        "q25": null,
+        "q75": null,
+        "skewness": null,
+        "kurtosis": null,
+        "top_frequencies": {
+          "Male": 5457,
+          "Female": 4543
+        },
+        "mode": "Male"
+      }
+    },
+    {
+      "name": "Age",
+      "raw_dtype": "int64",
+      "inferred_type": "numeric_discrete",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 70,
+      "cardinality_ratio": 0.007,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [42, 41, 39, 43, 30],
+      "stats": {
+        "min": 18.0,
+        "max": 92.0,
+        "mean": 38.92,
+        "std": 10.49,
+        "median": 37.0,
+        "q25": 32.0,
+        "q75": 44.0,
+        "skewness": 1.01,
+        "kurtosis": 1.39,
+        "top_frequencies": null,
+        "mode": 37
+      }
+    },
+    {
+      "name": "Tenure",
+      "raw_dtype": "int64",
+      "inferred_type": "numeric_discrete",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 11,
+      "cardinality_ratio": 0.0011,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [2, 1, 8, 7, 5],
+      "stats": {
+        "min": 0.0,
+        "max": 10.0,
+        "mean": 5.01,
+        "std": 2.89,
+        "median": 5.0,
+        "q25": 3.0,
+        "q75": 7.0,
+        "skewness": 0.01,
+        "kurtosis": -1.16,
+        "top_frequencies": null,
+        "mode": 2
+      }
+    },
+    {
+      "name": "Balance",
+      "raw_dtype": "float64",
+      "inferred_type": "numeric_continuous",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 6382,
+      "cardinality_ratio": 0.6382,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [0.0, 83807.86, 159660.8, 93826.63, 125510.82],
+      "stats": {
+        "min": 0.0,
+        "max": 250898.09,
+        "mean": 76485.89,
+        "std": 62397.41,
+        "median": 97198.54,
+        "q25": 0.0,
+        "q75": 127644.24,
+        "skewness": -0.14,
+        "kurtosis": -1.49,
+        "top_frequencies": null,
+        "mode": 0.0
+      }
+    },
+    {
+      "name": "NumOfProducts",
+      "raw_dtype": "int64",
+      "inferred_type": "numeric_discrete",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 4,
+      "cardinality_ratio": 0.0004,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [1, 2, 3, 4],
+      "stats": {
+        "min": 1.0,
+        "max": 4.0,
+        "mean": 1.53,
+        "std": 0.58,
+        "median": 1.0,
+        "q25": 1.0,
+        "q75": 2.0,
+        "skewness": 0.75,
+        "kurtosis": 0.58,
+        "top_frequencies": null,
+        "mode": 1
+      }
+    },
+    {
+      "name": "HasCrCard",
+      "raw_dtype": "int64",
+      "inferred_type": "boolean",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 2,
+      "cardinality_ratio": 0.0002,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [1, 0],
+      "stats": {
+        "min": 0.0,
+        "max": 1.0,
+        "mean": 0.71,
+        "std": 0.46,
+        "median": 1.0,
+        "q25": 0.0,
+        "q75": 1.0,
+        "skewness": -0.9,
+        "kurtosis": -1.18,
+        "top_frequencies": {
+          "1": 7055,
+          "0": 2945
+        },
+        "mode": 1
+      }
+    },
+    {
+      "name": "IsActiveMember",
+      "raw_dtype": "int64",
+      "inferred_type": "boolean",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 2,
+      "cardinality_ratio": 0.0002,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [1, 0],
+      "stats": {
+        "min": 0.0,
+        "max": 1.0,
+        "mean": 0.52,
+        "std": 0.5,
+        "median": 1.0,
+        "q25": 0.0,
+        "q75": 1.0,
+        "skewness": -0.06,
+        "kurtosis": -2.0,
+        "top_frequencies": {
+          "1": 5151,
+          "0": 4849
+        },
+        "mode": 1
+      }
+    },
+    {
+      "name": "EstimatedSalary",
+      "raw_dtype": "float64",
+      "inferred_type": "numeric_continuous",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 9999,
+      "cardinality_ratio": 0.9999,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [101348.88, 112542.58, 113931.57, 93826.63, 79084.1],
+      "stats": {
+        "min": 11.58,
+        "max": 199992.48,
+        "mean": 100090.24,
+        "std": 57510.49,
+        "median": 100193.91,
+        "q25": 51002.11,
+        "q75": 149388.25,
+        "skewness": 0.0,
+        "kurtosis": -1.18,
+        "top_frequencies": null,
+        "mode": 24924.92
+      }
+    },
+    {
+      "name": "Exited",
+      "raw_dtype": "int64",
+      "inferred_type": "boolean",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 2,
+      "cardinality_ratio": 0.0002,
+      "is_identifier": false,
+      "is_potential_target": true,
+      "is_constant": false,
+      "sample_values": [1, 0],
+      "stats": {
+        "min": 0.0,
+        "max": 1.0,
+        "mean": 0.2037,
+        "std": 0.4028,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.0,
+        "skewness": 1.47,
+        "kurtosis": 0.16,
+        "top_frequencies": {
+          "0": 7963,
+          "1": 2037
+        },
+        "mode": 0
+      }
+    },
+    {
+      "name": "PostEventComplaintFlag",
+      "raw_dtype": "int64",
+      "inferred_type": "boolean",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_count": 2,
+      "cardinality_ratio": 0.0002,
+      "is_identifier": false,
+      "is_potential_target": false,
+      "is_constant": false,
+      "sample_values": [1, 0],
+      "stats": {
+        "min": 0.0,
+        "max": 1.0,
+        "mean": 0.198,
+        "std": 0.398,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.0,
+        "skewness": 1.52,
+        "kurtosis": 0.31,
+        "top_frequencies": {
+          "0": 8020,
+          "1": 1980
+        },
+        "mode": 0
+      }
+    }
+  ],
+  "fingerprint": {
+    "shape": [10000, 14],
+    "memory_mb": 1.07,
+    "numeric_columns": ["CreditScore", "Age", "Tenure", "Balance", "NumOfProducts", "EstimatedSalary"],
+    "categorical_columns": ["Geography", "Gender", "HasCrCard", "IsActiveMember"],
+    "datetime_columns": [],
+    "identifier_columns": ["CustomerId"],
+    "text_columns": ["Surname"],
+    "constant_columns": [],
+    "high_cardinality_categoricals": ["Surname"],
+    "primary_entity_key": "CustomerId",
+    "temporal": null,
+    "class_balance": {
+      "target_column": "Exited",
+      "proportions": {
+        "0": 0.7963,
+        "1": 0.2037
+      },
+      "class_counts": {
+        "0": 7963,
+        "1": 2037
+      },
+      "minority_class_percentage": 20.37,
+      "is_imbalanced": true,
+      "imbalance_ratio": 3.91
+    },
+    "task_type_candidates": ["binary_classification", "clustering", "unsupervised_eda"]
+  },
+  "quality_report": {
+    "overall_quality_score": 96.5,
+    "duplicate_row_count": 0,
+    "duplicate_row_percentage": 0.0,
+    "total_missing_cells": 0,
+    "missing_cell_percentage": 0.0,
+    "columns_with_missing": [],
+    "columns_with_outliers": ["Age", "CreditScore"],
+    "total_outliers": 378,
+    "type_mismatches": [],
+    "warnings": [
+      "Target variable 'Exited' has moderate class imbalance (minority class: 20.37%). Use StratifiedKFold and balanced metrics like ROC-AUC or F1-Score.",
+      "Identified potential target-derived leakage column 'PostEventComplaintFlag' with 0.94 correlation to target."
+    ],
+    "passed_checks": [
+      "Zero missing values in dataset",
+      "Zero duplicate rows found",
+      "Identifier column 'CustomerId' isolated to prevent leakage",
+      "Encodings and delimiters parsed cleanly"
+    ]
+  },
+  "leakage_report": {
+    "has_leakage_risk": true,
+    "leakage_candidates": [
+      {
+        "column": "PostEventComplaintFlag",
+        "leakage_type": "future_post_event",
+        "risk_level": "high",
+        "reason": "Feature exhibits 0.94 correlation with target 'Exited' and name indicates post-event collection.",
+        "target_column": "Exited",
+        "correlation_with_target": 0.9412
+      },
+      {
+        "column": "CustomerId",
+        "leakage_type": "id_leakage",
+        "risk_level": "high",
+        "reason": "Column is a unique entity identifier (100% unique). Must not be used as an ML predictor.",
+        "target_column": "Exited",
+        "correlation_with_target": -0.0062
+      }
+    ],
+    "recommended_drops": ["PostEventComplaintFlag", "CustomerId"],
+    "sanitized_feature_columns": [
+      "CreditScore",
+      "Geography",
+      "Gender",
+      "Age",
+      "Tenure",
+      "Balance",
+      "NumOfProducts",
+      "HasCrCard",
+      "IsActiveMember",
+      "EstimatedSalary"
+    ]
+  },
+  "router": {
+    "recommended_primary_task": "binary_classification",
+    "secondary_tasks": ["clustering", "unsupervised_eda"],
+    "applicable_engines": [
+      "statistical_engine",
+      "classification_championship",
+      "error_analysis",
+      "subgroup_analysis",
+      "clustering_engine"
+    ],
+    "skipped_engines": {
+      "time_series_forecasting": "No datetime/temporal column detected in dataset.",
+      "regression_engine": "Target 'Exited' is binary categorical (0/1)."
+    },
+    "validation_strategy": "StratifiedKFold",
+    "recommended_metrics": ["roc_auc", "f1_weighted", "precision", "recall", "log_loss"],
+    "rationale": "Dataset contains tabular features with a clear binary target 'Exited' (20.37% positive rate). Stratified 5-Fold cross-validation is required."
+  },
+  "target_candidates": [
+    {
+      "column_name": "Exited",
+      "task_type": "binary_classification",
+      "confidence_score": 0.96,
+      "reasons": [
+        "Binary integer (0/1) indicating customer churn status",
+        "Common target nomenclature",
+        "Low cardinality (2 classes)"
+      ],
+      "class_count": 2
+    },
+    {
+      "column_name": "EstimatedSalary",
+      "task_type": "regression",
+      "confidence_score": 0.45,
+      "reasons": [
+        "Continuous numeric value suitable as an alternative regression target"
+      ],
+      "class_count": null
+    }
+  ],
+  "cleaning_audit": {
+    "original_shape": [10000, 14],
+    "cleaned_shape": [10000, 13],
+    "applied_actions": [
+      {
+        "action_type": "drop_column",
+        "column": "PostEventComplaintFlag",
+        "affected_rows": 10000,
+        "description": "Dropped leakage column 'PostEventComplaintFlag' due to high future-event leakage risk.",
+        "timestamp": "2026-09-07T12:00:00Z"
+      }
+    ],
+    "dropped_columns": ["PostEventComplaintFlag"],
+    "imputed_columns": []
+  },
+  "created_at": "2026-09-07T12:00:00Z",
+  "metadata": {
+    "generator": "AIDA Person 1 Data Brain",
+    "schema_version": "1.0.0"
+  }
+}

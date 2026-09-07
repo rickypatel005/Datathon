@@ -1,7 +1,14 @@
 """
 CrewAI Task definitions that map to the analysis pipeline.
 """
-from crewai import Task
+try:
+    from crewai import Task
+except (ImportError, Exception):
+    class Task:
+        def __init__(self, *args, **kwargs):
+            self.description = kwargs.get("description", "")
+            self.expected_output = kwargs.get("expected_output", "")
+            self.agent = kwargs.get("agent", None)
 from typing import Dict, Any
 
 

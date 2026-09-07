@@ -1,0 +1,7 @@
+id;name;score;status
+1;René;95.0;active
+2;Alice;80.0;inactive
+2;Alice;80.0;inactive
+3;Bob;;active
+4;;70.0;active
+5;Zöe;88.0;inactive
