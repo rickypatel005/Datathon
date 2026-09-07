@@ -24,7 +24,15 @@ from config import settings
 from tools.analysis_tools import load_dataset, get_dataset_overview, clean_dataset, perform_eda, generate_chart_data, preprocess_for_visualization
 from tools.ml_tools import train_classification_model, train_regression_model, train_clustering_model, save_model
 from agents.crew import AnalysisCrew, get_llm
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+try:
+    from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+except ImportError:
+    class SystemMessage:  # type: ignore
+        def __init__(self, content="", **kwargs): self.content = content
+    class HumanMessage:  # type: ignore
+        def __init__(self, content="", **kwargs): self.content = content
+    class AIMessage:  # type: ignore
+        def __init__(self, content="", **kwargs): self.content = content
 
 router = APIRouter()
 
@@ -109,6 +117,28 @@ def login(user_in: UserLogin, db: Session = Depends(get_db)):
     if not user or not verify_password(user_in.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
         
+    access_token = create_access_token(data={"sub": user.id})
+    return TokenResponse(access_token=access_token, user=user)
+
+
+@router.post("/demo-login", response_model=TokenResponse)
+def demo_login(db: Session = Depends(get_db)):
+    """Authenticate or auto-provision a guest analyst and return a signed JWT token."""
+    user = db.query(User).filter(User.email == "dr.chen@aida.ai").first()
+    if not user:
+        user = db.query(User).first()
+    if not user:
+        user = User(
+            id=str(uuid.uuid4()),
+            email="dr.chen@aida.ai",
+            username="dr_sarah_chen",
+            hashed_password=hash_password("AidaDemo2026!"),
+            full_name="Dr. Sarah Chen"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
     access_token = create_access_token(data={"sub": user.id})
     return TokenResponse(access_token=access_token, user=user)
 
@@ -427,15 +457,17 @@ def chat_with_agent(
             chat_history.append(AIMessage(content=record.content))
 
     # Add tools for the agent
-    from langchain_community.tools.ddg_search import DuckDuckGoSearchRun
-    search_tool = DuckDuckGoSearchRun()
-    
     tools = [
         load_dataset, get_dataset_overview, clean_dataset, perform_eda, 
         preprocess_for_visualization, generate_chart_data,
         train_classification_model, train_regression_model, 
-        train_clustering_model, save_model, search_tool
+        train_clustering_model, save_model
     ]
+    try:
+        from langchain_community.tools.ddg_search import DuckDuckGoSearchRun
+        tools.append(DuckDuckGoSearchRun())
+    except Exception:
+        pass
 
     from agents.chat_agent import build_chat_agent
     

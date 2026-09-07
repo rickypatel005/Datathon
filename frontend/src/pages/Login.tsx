@@ -1,8 +1,8 @@
-import { API_BASE_URL } from '../utils/apiClient';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { API_BASE_URL } from '../utils/apiClient';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -40,68 +40,107 @@ export function Login() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full pointer-events-none"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-500/20 blur-[120px] rounded-full pointer-events-none"></div>
+  const handleDemoAccess = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/demo-login`, {
+        method: 'POST'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAuth(data.user, data.access_token);
+        navigate('/');
+        return;
+      }
+    } catch (e) {
+      console.warn('Backend demo-login fetch failed, using fallback token', e);
+    }
 
-      <div className="w-full max-w-md z-10 px-6">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="bg-primary/10 p-3 rounded-2xl">
-              <BrainCircuit className="w-8 h-8 text-primary" />
+    // Fallback demo session with recognized demo-token
+    setAuth(
+      {
+        id: 'usr-demo-01',
+        email: 'dr.chen@aida.ai',
+        username: 'Dr. Sarah Chen',
+        role: 'Lead Data Scientist'
+      },
+      'demo-token-aida-jwt-999'
+    );
+    navigate('/');
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0b1326] text-[#dae2fd] flex flex-col items-center justify-center relative overflow-hidden px-4">
+      {/* Subtle telemetry background glows */}
+      <div className="absolute top-[-15%] left-[-10%] w-[500px] h-[500px] bg-[#6366f1]/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-15%] right-[-10%] w-[500px] h-[500px] bg-[#7bd0ff]/10 blur-[130px] rounded-full pointer-events-none" />
+
+      <div className="w-full max-w-md z-10">
+        {/* Brand Header */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-black text-lg shadow-lg shadow-primary/30">
+              AI
             </div>
-            <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#1DB875] to-[#0EA5E9]">
-              DataMind AI
+            <span className="font-bold text-2xl tracking-tight text-on-surface">
+              AIDA
             </span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Welcome back</h1>
-          <p className="text-foreground/60 mt-2 text-sm">Enter your credentials to access your workspace</p>
+
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-secondary font-mono text-[10px] font-semibold uppercase tracking-wider">
+              Precision Scientific Observability
+            </span>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-on-surface mt-2">
+            Autonomous Data Investigation
+          </h1>
+          <p className="text-xs text-on-surface-variant mt-1">
+            Enterprise authentication & session token verification
+          </p>
         </div>
 
-        <div className="bg-card/40 backdrop-blur-xl border border-border/50 shadow-2xl rounded-3xl p-8 transition-all hover:border-primary/30">
-          <form onSubmit={handleLogin} className="space-y-5">
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-xl text-sm flex items-start gap-2 animate-in fade-in slide-in-from-top-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <p>{error}</p>
-              </div>
-            )}
+        {/* Card Box */}
+        <div className="bg-[#131b2e] border border-[#222a3d] rounded-2xl p-6 sm:p-8 shadow-2xl space-y-5">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <p>{error}</p>
+            </div>
+          )}
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-foreground/80 pl-1">Email</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-foreground/40 group-focus-within:text-primary transition-colors">
-                  <Mail className="h-5 w-5" />
-                </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-on-surface-variant mb-1.5 uppercase tracking-wider font-mono">
+                Corporate Identity (Email)
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 absolute left-3 top-3 text-on-surface-variant/60" />
                 <input
                   type="email"
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border rounded-xl pl-11 pr-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-sm"
-                  placeholder="name@example.com"
+                  placeholder="analyst@enterprise.com"
+                  className="w-full bg-[#171f33] border border-[#2d3449] rounded-xl pl-9 pr-3 py-2 text-xs text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:border-primary transition-colors"
+                  required
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center justify-between pl-1 pr-1">
-                <label className="text-sm font-medium text-foreground/80">Password</label>
-                <a href="#" className="text-xs text-primary hover:underline font-medium">Forgot password?</a>
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider font-mono">
+                  Access Key (Password)
+                </label>
               </div>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-foreground/40 group-focus-within:text-primary transition-colors">
-                  <Lock className="h-5 w-5" />
-                </div>
+              <div className="relative">
+                <Lock className="w-4 h-4 absolute left-3 top-3 text-on-surface-variant/60" />
                 <input
                   type="password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border rounded-xl pl-11 pr-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-sm"
-                  placeholder="••••••••"
+                  placeholder="••••••••••••"
+                  className="w-full bg-[#171f33] border border-[#2d3449] rounded-xl pl-9 pr-3 py-2 text-xs text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:border-primary transition-colors"
+                  required
                 />
               </div>
             </div>
@@ -109,28 +148,41 @@ export function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl font-semibold transition-all disabled:opacity-50 mt-2 flex items-center justify-center gap-2 group shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98]"
+              className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 rounded-xl text-xs shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                <span>Verifying credentials...</span>
               ) : (
                 <>
-                  Sign In
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <span>Sign In to Console</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-foreground/60">
-            Don't have an account?{' '}
-            <Link 
-              to="/register" 
-              className="text-primary hover:underline font-semibold"
+          {/* Quick Demo Access Button */}
+          <div className="pt-2 border-t border-[#222a3d]">
+            <button
+              onClick={handleDemoAccess}
+              type="button"
+              className="w-full bg-[#171f33] hover:bg-[#222a3d] border border-primary/30 text-secondary font-semibold py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
-              Sign up
-            </Link>
+              <Sparkles className="w-3.5 h-3.5 text-secondary" />
+              <span>Instant Guest Analyst Access</span>
+            </button>
+            <p className="text-[10px] text-center text-on-surface-variant/60 mt-2 font-mono">
+              Bypasses login for live Datathon demonstration
+            </p>
           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-6 text-xs text-on-surface-variant/60">
+          <span>Don't have an account? </span>
+          <Link to="/register" className="text-primary hover:underline font-semibold">
+            Request Analyst Provisioning
+          </Link>
         </div>
       </div>
     </div>

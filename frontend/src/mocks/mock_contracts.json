@@ -1,0 +1,649 @@
+{
+  "churn_dataset": {
+    "dashboard": {
+      "dataset_id": "ds-churn-901",
+      "dataset_name": "Telco_Customer_Churn_Q3.csv",
+      "generated_at": "2026-09-07T10:30:00Z",
+      "task_type": "classification",
+      "kpis": [
+        {
+          "id": "kpi-rows",
+          "label": "Analyzed Records",
+          "value": "7,043",
+          "subtitle": "21 features profiled",
+          "icon_name": "Database"
+        },
+        {
+          "id": "kpi-quality",
+          "label": "Data Quality Health",
+          "value": "94.2%",
+          "is_positive": true,
+          "subtitle": "11 missing TotalCharges imputed",
+          "icon_name": "CheckCircle"
+        },
+        {
+          "id": "kpi-champion",
+          "label": "Champion Model ROC-AUC",
+          "value": "0.854",
+          "change": "+4.2% vs baseline",
+          "is_positive": true,
+          "subtitle": "LightGBM Classifier",
+          "icon_name": "Trophy"
+        },
+        {
+          "id": "kpi-leakage",
+          "label": "Leakage Risk Detected",
+          "value": "1 Flag",
+          "change": "Customer_ID dropped",
+          "is_positive": false,
+          "subtitle": "Isolated before training",
+          "icon_name": "AlertTriangle"
+        }
+      ],
+      "quality_summary": {
+        "overall_score": 94.2,
+        "has_leakage": true,
+        "leakage_count": 1,
+        "rows": 7043,
+        "columns": 21
+      },
+      "applicable_sections": {
+        "overview": true,
+        "data_quality": true,
+        "time_series": false,
+        "model_championship": true,
+        "insights_investigation": true,
+        "correlations": true
+      },
+      "championship_summary": {
+        "champion_name": "LightGBM Classifier",
+        "primary_metric_name": "ROC-AUC",
+        "primary_metric_value": 0.854,
+        "total_models_evaluated": 4,
+        "validation_method": "5-Fold Stratified Cross-Validation"
+      },
+      "charts": [
+        {
+          "id": "chart-contract-type",
+          "title": "Churn Rate by Contract Term",
+          "description": "Month-to-month contracts exhibit a 42.7% churn rate vs 2.8% for two-year contracts.",
+          "category": "category_comparison",
+          "chart_type": "bar",
+          "applicable": true,
+          "data": [
+            {
+              "x": ["Month-to-month", "One year", "Two year"],
+              "y": [42.7, 11.3, 2.8],
+              "type": "bar",
+              "name": "Churn Rate (%)",
+              "marker": {
+                "color": ["#EF4444", "#F59E0B", "#10B981"]
+              }
+            }
+          ],
+          "layout": {
+            "title": "Churn Rate (%) by Contract Type",
+            "xaxis": { "title": "Contract Duration" },
+            "yaxis": { "title": "Churn Rate (%)", "range": [0, 50] },
+            "margin": { "t": 40, "b": 40, "l": 50, "r": 20 }
+          }
+        },
+        {
+          "id": "chart-tenure-dist",
+          "title": "Tenure Distribution by Churn Status",
+          "description": "High churn concentration in first 0-6 months of customer lifecycle.",
+          "category": "distribution",
+          "chart_type": "histogram",
+          "applicable": true,
+          "data": [
+            {
+              "x": [1, 2, 3, 4, 6, 8, 12, 18, 24, 36, 48, 60, 72, 1, 2, 3, 5, 2, 1, 4, 6, 1],
+              "type": "histogram",
+              "name": "Churned",
+              "opacity": 0.75,
+              "marker": { "color": "#EF4444" }
+            },
+            {
+              "x": [12, 24, 36, 48, 60, 72, 65, 70, 48, 55, 62, 71, 30, 42, 55, 64, 72, 60],
+              "type": "histogram",
+              "name": "Retained",
+              "opacity": 0.65,
+              "marker": { "color": "#10B981" }
+            }
+          ],
+          "layout": {
+            "barmode": "overlay",
+            "title": "Tenure (Months) Distribution",
+            "xaxis": { "title": "Tenure in Months" },
+            "yaxis": { "title": "Customer Count" },
+            "margin": { "t": 40, "b": 40, "l": 50, "r": 20 }
+          }
+        },
+        {
+          "id": "chart-monthly-charges",
+          "title": "Monthly Charges vs Churn Probability",
+          "description": "Customers billed above $70/mo show 2.4x churn risk.",
+          "category": "correlation",
+          "chart_type": "box",
+          "applicable": true,
+          "data": [
+            {
+              "y": [20, 25, 45, 60, 70, 75, 80, 85, 95, 105, 110],
+              "type": "box",
+              "name": "Churned",
+              "marker": { "color": "#EF4444" }
+            },
+            {
+              "y": [18, 20, 25, 30, 45, 55, 65, 70, 75, 85, 90],
+              "type": "box",
+              "name": "Retained",
+              "marker": { "color": "#10B981" }
+            }
+          ],
+          "layout": {
+            "title": "Monthly Charges Distribution ($)",
+            "yaxis": { "title": "Monthly Charge ($)" },
+            "margin": { "t": 40, "b": 40, "l": 50, "r": 20 }
+          }
+        },
+        {
+          "id": "chart-correlations",
+          "title": "Feature Correlation Heatmap",
+          "description": "Strong correlation between Tenure and Total Charges (0.83), negative with Churn (-0.35).",
+          "category": "correlation",
+          "chart_type": "heatmap",
+          "applicable": true,
+          "data": [
+            {
+              "z": [
+                [1.0, 0.83, 0.25, -0.35],
+                [0.83, 1.0, 0.65, -0.20],
+                [0.25, 0.65, 1.0, 0.19],
+                [-0.35, -0.20, 0.19, 1.0]
+              ],
+              "x": ["Tenure", "TotalCharges", "MonthlyCharges", "Churn_Flag"],
+              "y": ["Tenure", "TotalCharges", "MonthlyCharges", "Churn_Flag"],
+              "type": "heatmap",
+              "colorscale": "RdBu",
+              "reversescale": true
+            }
+          ],
+          "layout": {
+            "title": "Correlation Matrix",
+            "margin": { "t": 40, "b": 60, "l": 90, "r": 20 }
+          }
+        }
+      ],
+      "insights": [
+        {
+          "id": "ins-1",
+          "title": "Early Lifecycle Month-to-Month Contract Vulnerability",
+          "claim": "Customers on Month-to-Month contracts within the first 6 months have a 51.4% probability of churn, accounting for 68% of total churn volume.",
+          "status": "verified",
+          "confidence_score": 96,
+          "business_impact": "high",
+          "model_agreement": {
+            "agree_ratio": 1.0,
+            "agree_count": 4,
+            "total_models": 4,
+            "agreeing_models": ["LightGBM", "XGBoost", "RandomForest", "LogisticRegression"],
+            "diverging_models": []
+          },
+          "evidence": {
+            "metric_name": "Odds Ratio",
+            "metric_value": "4.82x",
+            "p_value": 0.0001,
+            "effect_size": 0.74,
+            "sample_size": 2180,
+            "baseline_value": "11.2% base rate"
+          },
+          "methodology": "Multivariate Logistic Regression & SHAP interaction analysis on Tenure < 6 & Contract == 'Month-to-month'",
+          "critic_counterargument": "Could this effect be driven purely by younger demographics rather than contract structure?",
+          "verifier_resolution": "Controlled for age and dependents. Effect size remains statistically invariant (p < 0.001) across age strata."
+        },
+        {
+          "id": "ins-2",
+          "title": "Fiber Optic Tech Support Deficit Risk",
+          "claim": "Fiber Optic subscribers without Tech Support churn at 3.1x the rate of DSL subscribers with Tech Support, regardless of speed tier.",
+          "status": "verified",
+          "confidence_score": 92,
+          "business_impact": "high",
+          "model_agreement": {
+            "agree_ratio": 0.75,
+            "agree_count": 3,
+            "total_models": 4,
+            "agreeing_models": ["LightGBM", "XGBoost", "RandomForest"],
+            "diverging_models": ["LogisticRegression"]
+          },
+          "evidence": {
+            "metric_name": "Relative Risk",
+            "metric_value": "3.14",
+            "p_value": 0.0024,
+            "effect_size": 0.61,
+            "sample_size": 3096,
+            "baseline_value": "1.00"
+          },
+          "methodology": "Two-way ANOVA with Tukey HSD post-hoc test between InternetService and TechSupport interactions",
+          "critic_counterargument": "Fiber Optic has higher monthly cost ($70-100); cost might be the confounding variable.",
+          "verifier_resolution": "Residual analysis after partialling out MonthlyCharges confirms TechSupport presence provides independent 18% churn reduction."
+        },
+        {
+          "id": "ins-3",
+          "title": "Electronic Check Payment Method Disproportionate Attrition",
+          "claim": "Electronic check users demonstrate 45.3% churn compared to 15.2% for bank transfer and credit card auto-pay.",
+          "status": "challenged",
+          "confidence_score": 78,
+          "business_impact": "medium",
+          "model_agreement": {
+            "agree_ratio": 0.5,
+            "agree_count": 2,
+            "total_models": 4,
+            "agreeing_models": ["LightGBM", "RandomForest"],
+            "diverging_models": ["XGBoost", "LogisticRegression"]
+          },
+          "evidence": {
+            "metric_name": "Chi-Square Stat",
+            "metric_value": "648.5",
+            "p_value": 0.0001,
+            "sample_size": 2365
+          },
+          "methodology": "Chi-square contingency test between PaymentMethod and Churn",
+          "critic_counterargument": "Electronic check users strongly overlap with 1-month contract users (Pearson r = 0.41). Is payment method an artifact?",
+          "verifier_resolution": "Challenged finding: Feature importance drops significantly when contract tenure is isolated. Recommend incentivizing auto-pay but not treating payment method as root cause."
+        }
+      ]
+    },
+    "discovery": {
+      "dataset_id": "ds-churn-901",
+      "dataset_name": "Telco_Customer_Churn_Q3.csv",
+      "fingerprint": {
+        "shape": [7043, 21],
+        "memory_usage_mb": 1.18,
+        "has_datetime": false,
+        "has_id_column": true,
+        "recommended_task": "classification",
+        "target_candidates": ["Churn", "Contract", "SeniorCitizen"],
+        "selected_target": "Churn"
+      },
+      "quality_report": {
+        "overall_score": 94.2,
+        "completeness_score": 99.8,
+        "validity_score": 95.0,
+        "outlier_score": 88.0,
+        "missing_cells_total": 11,
+        "duplicate_rows": 0,
+        "total_rows": 7043,
+        "total_cols": 21,
+        "cleaning_actions_taken": [
+          "Imputed 11 blank TotalCharges cells with column median ($1,397.48)",
+          "Converted TotalCharges from string dtype to float64",
+          "Identified customerID as non-predictive entity identifier and quarantined",
+          "Standardized binary encoding on Partner, Dependents, PhoneService, PaperlessBilling"
+        ]
+      },
+      "leakage_report": {
+        "has_leakage": true,
+        "warnings": [
+          {
+            "column": "customerID",
+            "risk_level": "critical",
+            "reason": "100% unique alphanumeric ID. If retained, trees will memorize row indices.",
+            "recommendation": "Automatically excluded from feature space before model benchmarking."
+          }
+        ]
+      },
+      "router_recommendations": {
+        "models_to_benchmark": ["LightGBM", "XGBoost", "Random Forest", "Logistic Regression"],
+        "validation_strategy": "5-Fold Stratified Cross-Validation",
+        "feature_engineering_notes": [
+          "Apply One-Hot Encoding for Contract, PaymentMethod, InternetService",
+          "Create interaction term: Tenure * MonthlyCharges vs TotalCharges",
+          "Compute ratio: StreamingServices_Count / TotalAddons"
+        ]
+      }
+    },
+    "analysis": {
+      "dataset_id": "ds-churn-901",
+      "task_type": "classification",
+      "target_column": "Churn",
+      "validation_strategy": {
+        "method": "5-Fold Stratified Cross-Validation",
+        "split_ratio": "80/20 train/test",
+        "stratified": true
+      },
+      "champion_model": "LightGBM Classifier",
+      "models": [
+        {
+          "model_id": "m-lgbm",
+          "model_name": "LightGBM Classifier",
+          "algorithm": "lightgbm",
+          "is_champion": true,
+          "metrics": {
+            "accuracy": 0.812,
+            "roc_auc": 0.854,
+            "f1_score": 0.638,
+            "precision": 0.672,
+            "recall": 0.608
+          },
+          "cv_mean": 0.854,
+          "cv_std": 0.012,
+          "training_time_sec": 1.42,
+          "hyperparameters": { "num_leaves": 31, "learning_rate": 0.05, "n_estimators": 120 }
+        },
+        {
+          "model_id": "m-xgb",
+          "model_name": "XGBoost Classifier",
+          "algorithm": "xgboost",
+          "is_champion": false,
+          "metrics": {
+            "accuracy": 0.806,
+            "roc_auc": 0.849,
+            "f1_score": 0.627,
+            "precision": 0.655,
+            "recall": 0.601
+          },
+          "cv_mean": 0.849,
+          "cv_std": 0.014,
+          "training_time_sec": 2.18,
+          "hyperparameters": { "max_depth": 4, "learning_rate": 0.08, "n_estimators": 100 }
+        },
+        {
+          "model_id": "m-rf",
+          "model_name": "Random Forest Classifier",
+          "algorithm": "random_forest",
+          "is_champion": false,
+          "metrics": {
+            "accuracy": 0.798,
+            "roc_auc": 0.838,
+            "f1_score": 0.612,
+            "precision": 0.640,
+            "recall": 0.587
+          },
+          "cv_mean": 0.838,
+          "cv_std": 0.016,
+          "training_time_sec": 3.85,
+          "hyperparameters": { "n_estimators": 200, "max_depth": 8 }
+        },
+        {
+          "model_id": "m-lr",
+          "model_name": "Logistic Regression",
+          "algorithm": "logistic_regression",
+          "is_champion": false,
+          "metrics": {
+            "accuracy": 0.801,
+            "roc_auc": 0.841,
+            "f1_score": 0.605,
+            "precision": 0.661,
+            "recall": 0.558
+          },
+          "cv_mean": 0.841,
+          "cv_std": 0.009,
+          "training_time_sec": 0.45,
+          "hyperparameters": { "C": 1.0, "penalty": "l2", "solver": "lbfgs" }
+        }
+      ],
+      "feature_importance": [
+        { "feature": "Contract_Month-to-month", "importance": 0.28 },
+        { "feature": "Tenure", "importance": 0.22 },
+        { "feature": "MonthlyCharges", "importance": 0.16 },
+        { "feature": "InternetService_FiberOptic", "importance": 0.12 },
+        { "feature": "TotalCharges", "importance": 0.09 },
+        { "feature": "TechSupport_No", "importance": 0.07 },
+        { "feature": "PaymentMethod_ElectronicCheck", "importance": 0.06 }
+      ],
+      "error_analysis": {
+        "type": "classification",
+        "confusion_matrix": {
+          "labels": ["Retained (0)", "Churned (1)"],
+          "matrix": [
+            [942, 93],
+            [171, 203]
+          ]
+        },
+        "worst_performing_segments": [
+          {
+            "feature": "Contract",
+            "segment": "Month-to-month",
+            "error_rate": 0.264,
+            "sample_count": 768
+          },
+          {
+            "feature": "InternetService",
+            "segment": "Fiber optic",
+            "error_rate": 0.241,
+            "sample_count": 619
+          },
+          {
+            "feature": "SeniorCitizen",
+            "segment": "Yes",
+            "error_rate": 0.238,
+            "sample_count": 231
+          }
+        ]
+      }
+    }
+  },
+  "sales_forecast": {
+    "dashboard": {
+      "dataset_id": "ds-sales-502",
+      "dataset_name": "Retail_Daily_Sales_2024_2026.csv",
+      "generated_at": "2026-09-07T11:15:00Z",
+      "task_type": "time_series",
+      "kpis": [
+        {
+          "id": "kpi-records",
+          "label": "Observed Timeline",
+          "value": "730 Days",
+          "subtitle": "2 full calendar years",
+          "icon_name": "Calendar"
+        },
+        {
+          "id": "kpi-quality",
+          "label": "Data Quality Health",
+          "value": "99.1%",
+          "is_positive": true,
+          "subtitle": "Zero missing dates in sequence",
+          "icon_name": "CheckCircle"
+        },
+        {
+          "id": "kpi-champion",
+          "label": "Champion Model MAPE",
+          "value": "4.8%",
+          "change": "-3.1% error vs baseline",
+          "is_positive": true,
+          "subtitle": "LightGBM + Lag Features",
+          "icon_name": "Trophy"
+        },
+        {
+          "id": "kpi-seasonality",
+          "label": "Seasonality Signal",
+          "value": "7-Day Cycle",
+          "subtitle": "Weekend volume +48%",
+          "is_positive": true,
+          "icon_name": "TrendingUp"
+        }
+      ],
+      "quality_summary": {
+        "overall_score": 99.1,
+        "has_leakage": false,
+        "leakage_count": 0,
+        "rows": 730,
+        "columns": 12
+      },
+      "applicable_sections": {
+        "overview": true,
+        "data_quality": true,
+        "time_series": true,
+        "model_championship": true,
+        "insights_investigation": true,
+        "correlations": true
+      },
+      "championship_summary": {
+        "champion_name": "LightGBM Regressor (Autoregressive Lags)",
+        "primary_metric_name": "MAPE",
+        "primary_metric_value": 0.048,
+        "total_models_evaluated": 3,
+        "validation_method": "TimeSeriesSplit (5 Splits, No Lookahead)"
+      },
+      "charts": [
+        {
+          "id": "chart-sales-trend",
+          "title": "Daily Sales Trajectory & 14-Day Forecast",
+          "description": "Historical sales with upward trend and weekly oscillation, overlaying 14-day holdout predictions.",
+          "category": "time_series",
+          "chart_type": "line",
+          "applicable": true,
+          "data": [
+            {
+              "x": ["2026-08-01", "2026-08-05", "2026-08-10", "2026-08-15", "2026-08-20", "2026-08-25", "2026-08-31", "2026-09-05"],
+              "y": [12400, 14200, 13800, 16500, 15900, 18200, 19400, 21200],
+              "type": "scatter",
+              "mode": "lines+markers",
+              "name": "Actual Sales ($)",
+              "line": { "color": "#0EA5E9", "width": 3 }
+            },
+            {
+              "x": ["2026-08-25", "2026-08-31", "2026-09-05", "2026-09-10", "2026-09-15"],
+              "y": [18100, 19250, 21000, 22400, 23100],
+              "type": "scatter",
+              "mode": "lines",
+              "name": "Predicted Sales",
+              "line": { "color": "#10B981", "dash": "dash", "width": 2 }
+            }
+          ],
+          "layout": {
+            "title": "Daily Revenue Trend ($)",
+            "xaxis": { "title": "Date" },
+            "yaxis": { "title": "Gross Sales ($)" },
+            "margin": { "t": 40, "b": 40, "l": 60, "r": 20 }
+          }
+        },
+        {
+          "id": "chart-dayofweek-sales",
+          "title": "Average Revenue by Day of Week",
+          "description": "Saturday and Sunday generate peak revenue, with Tuesday forming the trough.",
+          "category": "category_comparison",
+          "chart_type": "bar",
+          "applicable": true,
+          "data": [
+            {
+              "x": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+              "y": [13200, 11900, 12800, 14500, 18200, 23400, 21100],
+              "type": "bar",
+              "marker": {
+                "color": ["#94A3B8", "#94A3B8", "#94A3B8", "#94A3B8", "#38BDF8", "#0284C7", "#0369A1"]
+              }
+            }
+          ],
+          "layout": {
+            "title": "Revenue Distribution by Day ($)",
+            "xaxis": { "title": "Day of Week" },
+            "yaxis": { "title": "Mean Sales ($)" },
+            "margin": { "t": 40, "b": 40, "l": 60, "r": 20 }
+          }
+        }
+      ],
+      "insights": [
+        {
+          "id": "ins-ts-1",
+          "title": "Weekend Sales Surge Driven by Omnichannel Promotions",
+          "claim": "Weekend transaction volume surges by +48.6% relative to midweek baseline, generating 44% of total weekly gross margin.",
+          "status": "verified",
+          "confidence_score": 98,
+          "business_impact": "high",
+          "model_agreement": {
+            "agree_ratio": 1.0,
+            "agree_count": 3,
+            "total_models": 3,
+            "agreeing_models": ["LightGBM", "RandomForest", "RidgeRegression"],
+            "diverging_models": []
+          },
+          "evidence": {
+            "metric_name": "T-Statistic",
+            "metric_value": "14.22",
+            "p_value": 0.00001,
+            "effect_size": 1.15,
+            "sample_size": 730,
+            "baseline_value": "$13,100 / day"
+          },
+          "methodology": "Two-sample independent T-test and Fourier decomposition on 7-day cyclical component",
+          "critic_counterargument": "Is this peak purely seasonal due to holiday quarter Q4?",
+          "verifier_resolution": "Decomposed across all 4 quarters; weekend premium remains above +38% even during slower Q1/Q2 periods."
+        }
+      ]
+    },
+    "analysis": {
+      "dataset_id": "ds-sales-502",
+      "task_type": "time_series",
+      "target_column": "Daily_Sales",
+      "validation_strategy": {
+        "method": "TimeSeriesSplit (5 Splits)",
+        "split_ratio": "Rolling walk-forward",
+        "stratified": false
+      },
+      "champion_model": "LightGBM Regressor (Autoregressive Lags)",
+      "models": [
+        {
+          "model_id": "m-ts-lgbm",
+          "model_name": "LightGBM Regressor",
+          "algorithm": "lightgbm",
+          "is_champion": true,
+          "metrics": {
+            "mae": 612.4,
+            "rmse": 842.1,
+            "r2_score": 0.932
+          },
+          "cv_mean": 0.932,
+          "cv_std": 0.015,
+          "training_time_sec": 0.95,
+          "hyperparameters": { "n_estimators": 150, "learning_rate": 0.03 }
+        },
+        {
+          "model_id": "m-ts-rf",
+          "model_name": "Random Forest Regressor",
+          "algorithm": "random_forest",
+          "is_champion": false,
+          "metrics": {
+            "mae": 745.2,
+            "rmse": 1020.8,
+            "r2_score": 0.901
+          },
+          "cv_mean": 0.901,
+          "cv_std": 0.021,
+          "training_time_sec": 2.45,
+          "hyperparameters": { "n_estimators": 100 }
+        },
+        {
+          "model_id": "m-ts-ridge",
+          "model_name": "Ridge Regressor",
+          "algorithm": "ridge",
+          "is_champion": false,
+          "metrics": {
+            "mae": 1054.0,
+            "rmse": 1412.3,
+            "r2_score": 0.824
+          },
+          "cv_mean": 0.824,
+          "cv_std": 0.032,
+          "training_time_sec": 0.12,
+          "hyperparameters": { "alpha": 1.0 }
+        }
+      ],
+      "feature_importance": [
+        { "feature": "Sales_Lag_7", "importance": 0.42 },
+        { "feature": "Sales_Lag_1", "importance": 0.26 },
+        { "feature": "Is_Weekend", "importance": 0.18 },
+        { "feature": "Discount_Applied", "importance": 0.09 },
+        { "feature": "Marketing_Spend", "importance": 0.05 }
+      ],
+      "error_analysis": {
+        "type": "regression",
+        "residuals": {
+          "actual": [12400, 14200, 13800, 16500, 15900, 18200, 19400, 21200],
+          "predicted": [12150, 14420, 13610, 16210, 16100, 17950, 19180, 20950],
+          "residual": [250, -220, 190, 290, -200, 250, 220, 250]
+        }
+      }
+    }
+  }
+}

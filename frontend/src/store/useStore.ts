@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { DashboardContract, PipelineProgress } from '../types/contracts';
 
 interface User {
   id: string;
@@ -27,6 +28,16 @@ interface AppState {
   toggleSidebar: () => void;
   theme: 'light' | 'dark' | 'system';
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
+
+  // AIDA Autonomous Pipeline & Contract State
+  isDemoMode: boolean;
+  setDemoMode: (isDemo: boolean) => void;
+  activeScenario: 'churn' | 'sales';
+  setActiveScenario: (scenario: 'churn' | 'sales') => void;
+  dashboardContract: DashboardContract | null;
+  setDashboardContract: (contract: DashboardContract | null) => void;
+  pipelineProgress: PipelineProgress | null;
+  setPipelineProgress: (progress: PipelineProgress | null) => void;
 }
 
 // Helper to apply theme to document
@@ -74,4 +85,15 @@ export const useStore = create<AppState>((set) => ({
     applyTheme(theme);
     set({ theme });
   },
+
+  // AIDA Defaults
+  isDemoMode: false,
+  setDemoMode: (isDemoMode) => set({ isDemoMode }),
+  activeScenario: 'churn',
+  setActiveScenario: (activeScenario) => set({ activeScenario }),
+  dashboardContract: null,
+  setDashboardContract: (dashboardContract) => set({ dashboardContract }),
+  pipelineProgress: null,
+  setPipelineProgress: (pipelineProgress) => set({ pipelineProgress }),
 }));
+

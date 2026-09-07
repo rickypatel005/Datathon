@@ -2,6 +2,8 @@ fastapi
 uvicorn
 crewai
 langchain
+langgraph
+langchain-core
 langchain-openai
 langchain-groq
 langchain-anthropic

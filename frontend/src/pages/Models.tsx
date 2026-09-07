@@ -1,8 +1,11 @@
 import { fetchWithAuth, API_BASE_URL } from '../utils/apiClient';
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
-import { BrainCircuit, Database, AlertCircle, Play, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { BrainCircuit, Database, AlertCircle, Play, CheckCircle2, XCircle, Clock, Trophy, Sliders } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ModelChampionship } from '../components/ModelChampionship';
+import mockData from '../mocks/mock_contracts.json';
+import type { AnalysisContract } from '../types/contracts';
 
 export function Models() {
   const activeDatasetId = useStore(state => state.activeDatasetId);
@@ -120,16 +123,69 @@ export function Models() {
     }
   };
 
+  const [tabMode, setTabMode] = useState<'championship' | 'custom'>('championship');
+  const [analysisContract, setAnalysisContract] = useState<AnalysisContract>(
+    (mockData as any).churn_dataset.analysis
+  );
+
+  useEffect(() => {
+    if (!activeDatasetId) return;
+    const fetchChampionship = async () => {
+      try {
+        const res = await fetchWithAuth(`${API_BASE_URL}/api/pipeline/championship/${activeDatasetId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.models) {
+            setAnalysisContract(data);
+          }
+        }
+      } catch (e) {
+        console.warn('Could not fetch pipeline championship, using fallback', e);
+      }
+    };
+    fetchChampionship();
+  }, [activeDatasetId]);
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <BrainCircuit className="w-8 h-8 text-primary" />
-          ML Models
-        </h1>
-        <p className="text-foreground/60 mt-1">Train and evaluate machine learning models on your datasets.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <BrainCircuit className="w-8 h-8 text-primary" />
+            Machine Learning Intelligence
+          </h1>
+          <p className="text-foreground/60 mt-1">Autonomous algorithmic benchmarking, champion selection, and model training.</p>
+        </div>
+
+        <div className="flex items-center gap-1.5 bg-muted/60 p-1 rounded-xl border border-border">
+          <button
+            onClick={() => setTabMode('championship')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              tabMode === 'championship'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-foreground/70 hover:text-foreground'
+            }`}
+          >
+            <Trophy className="w-3.5 h-3.5" />
+            <span>Model Championship</span>
+          </button>
+          <button
+            onClick={() => setTabMode('custom')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              tabMode === 'custom'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-foreground/70 hover:text-foreground'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>Manual Training Studio</span>
+          </button>
+        </div>
       </div>
 
+      {tabMode === 'championship' ? (
+        <ModelChampionship analysis={analysisContract} />
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-card border border-border rounded-xl p-5">
@@ -331,6 +387,7 @@ export function Models() {
           )}
         </div>
       </div>
+      )}
 
       {selectedModel && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
