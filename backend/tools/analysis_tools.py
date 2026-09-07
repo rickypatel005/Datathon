@@ -26,33 +26,43 @@ def load_dataset(file_path: str) -> pd.DataFrame:
         raise ValueError(f"Unsupported file type: {ext}")
 
 
+def _resolve_df(file_path: Optional[str] = None, df: Optional[Any] = None) -> pd.DataFrame:
+    if df is not None:
+        if isinstance(df, pd.DataFrame):
+            return df.copy()
+        return pd.DataFrame(df)
+    if file_path:
+        return load_dataset.invoke({"file_path": file_path})
+    raise ValueError("Either file_path or df must be provided.")
+
+
 @tool
-def get_dataset_overview(file_path: str) -> Dict[str, Any]:
+def get_dataset_overview(file_path: Optional[str] = None, df: Optional[Any] = None) -> Dict[str, Any]:
     """Generate a comprehensive overview of the dataset."""
-    df = load_dataset.invoke({"file_path": file_path})
+    df_data = _resolve_df(file_path, df)
     overview = {
-        "shape": {"rows": int(df.shape[0]), "columns": int(df.shape[1])},
+        "shape": {"rows": int(df_data.shape[0]), "columns": int(df_data.shape[1])},
         "columns": [],
-        "memory_usage_mb": round(df.memory_usage(deep=True).sum() / 1024 / 1024, 2),
-        "duplicate_rows": int(df.duplicated().sum()),
+        "memory_usage_mb": round(df_data.memory_usage(deep=True).sum() / 1024 / 1024, 2),
+        "duplicate_rows": int(df_data.duplicated().sum()),
     }
 
-    for col in df.columns:
+    for col in df_data.columns:
         col_info = {
             "name": col,
-            "dtype": str(df[col].dtype),
-            "null_count": int(df[col].isnull().sum()),
-            "null_percentage": round(df[col].isnull().sum() / len(df) * 100, 2),
-            "unique_count": int(df[col].nunique()),
+            "dtype": str(df_data[col].dtype),
+            "null_count": int(df_data[col].isnull().sum()),
+            "null_percentage": round(df_data[col].isnull().sum() / len(df_data) * 100, 2),
+            "unique_count": int(df_data[col].nunique()),
         }
-        if pd.api.types.is_numeric_dtype(df[col]):
-            col_info["min"] = float(df[col].min()) if not pd.isna(df[col].min()) else None
-            col_info["max"] = float(df[col].max()) if not pd.isna(df[col].max()) else None
-            col_info["mean"] = round(float(df[col].mean()), 4) if not pd.isna(df[col].mean()) else None
-            col_info["std"] = round(float(df[col].std()), 4) if not pd.isna(df[col].std()) else None
-            col_info["median"] = float(df[col].median()) if not pd.isna(df[col].median()) else None
+        if pd.api.types.is_numeric_dtype(df_data[col]):
+            col_info["min"] = float(df_data[col].min()) if not pd.isna(df_data[col].min()) else None
+            col_info["max"] = float(df_data[col].max()) if not pd.isna(df_data[col].max()) else None
+            col_info["mean"] = round(float(df_data[col].mean()), 4) if not pd.isna(df_data[col].mean()) else None
+            col_info["std"] = round(float(df_data[col].std()), 4) if not pd.isna(df_data[col].std()) else None
+            col_info["median"] = float(df_data[col].median()) if not pd.isna(df_data[col].median()) else None
         else:
-            top_values = df[col].value_counts().head(5).to_dict()
+            top_values = df_data[col].value_counts().head(5).to_dict()
             col_info["top_values"] = {str(k): int(v) for k, v in top_values.items()}
 
         overview["columns"].append(col_info)
@@ -61,14 +71,14 @@ def get_dataset_overview(file_path: str) -> Dict[str, Any]:
 
 
 @tool
-def clean_dataset(file_path: str, strategies: Optional[Dict] = None) -> Dict[str, Any]:
+def clean_dataset(file_path: Optional[str] = None, df: Optional[Any] = None, strategies: Optional[Dict] = None) -> Dict[str, Any]:
     """
     Clean the dataset: handle missing values, duplicates, outliers.
     Returns cleaned DataFrame and a report of changes.
     """
-    df = load_dataset.invoke({"file_path": file_path})
-    report = {"changes": [], "original_shape": list(df.shape)}
-    cleaned = df.copy()
+    df_data = _resolve_df(file_path, df)
+    report = {"changes": [], "original_shape": list(df_data.shape)}
+    cleaned = df_data.copy()
 
     # Remove duplicate rows
     dup_count = cleaned.duplicated().sum()
@@ -120,26 +130,26 @@ def clean_dataset(file_path: str, strategies: Optional[Dict] = None) -> Dict[str
 
 
 @tool
-def perform_eda(file_path: str) -> Dict[str, Any]:
+def perform_eda(file_path: Optional[str] = None, df: Optional[Any] = None) -> Dict[str, Any]:
     """Perform full exploratory data analysis."""
-    df = load_dataset.invoke({"file_path": file_path})
+    df_data = _resolve_df(file_path, df)
     eda = {}
 
     # Basic statistics
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    categorical_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
+    numeric_cols = df_data.select_dtypes(include=[np.number]).columns.tolist()
+    categorical_cols = df_data.select_dtypes(include=["object", "category"]).columns.tolist()
 
     if numeric_cols:
-        stats = df[numeric_cols].describe().round(4).to_dict()
+        stats = df_data[numeric_cols].describe().round(4).to_dict()
         eda["numeric_statistics"] = stats
 
         # Correlation matrix
-        corr = df[numeric_cols].corr().round(4)
+        corr = df_data[numeric_cols].corr().round(4)
         eda["correlation_matrix"] = corr.to_dict()
 
         # Skewness and Kurtosis
-        eda["skewness"] = df[numeric_cols].skew().round(4).to_dict()
-        eda["kurtosis"] = df[numeric_cols].kurtosis().round(4).to_dict()
+        eda["skewness"] = df_data[numeric_cols].skew().round(4).to_dict()
+        eda["kurtosis"] = df_data[numeric_cols].kurtosis().round(4).to_dict()
 
         # High correlations (|r| > 0.7)
         high_corr = []
@@ -157,9 +167,9 @@ def perform_eda(file_path: str) -> Dict[str, Any]:
     if categorical_cols:
         cat_stats = {}
         for col in categorical_cols:
-            vc = df[col].value_counts().head(10)
+            vc = df_data[col].value_counts().head(10)
             cat_stats[col] = {
-                "unique_count": int(df[col].nunique()),
+                "unique_count": int(df_data[col].nunique()),
                 "top_values": {str(k): int(v) for k, v in vc.items()},
             }
         eda["categorical_statistics"] = cat_stats
@@ -168,9 +178,9 @@ def perform_eda(file_path: str) -> Dict[str, Any]:
     distributions = {}
     for col in numeric_cols:
         distributions[col] = {
-            "histogram_values": df[col].dropna().tolist()[:500],  # Limit for serialization
-            "mean": round(float(df[col].mean()), 4) if not pd.isna(df[col].mean()) else None,
-            "median": round(float(df[col].median()), 4) if not pd.isna(df[col].median()) else None,
+            "histogram_values": df_data[col].dropna().tolist()[:500],  # Limit for serialization
+            "mean": round(float(df_data[col].mean()), 4) if not pd.isna(df_data[col].mean()) else None,
+            "median": round(float(df_data[col].median()), 4) if not pd.isna(df_data[col].median()) else None,
         }
     eda["distributions"] = distributions
 
@@ -178,7 +188,7 @@ def perform_eda(file_path: str) -> Dict[str, Any]:
 
 
 @tool
-def preprocess_for_visualization(file_path: str) -> tuple[pd.DataFrame, list[str]]:
+def preprocess_for_visualization(file_path: Optional[str] = None, df: Optional[Any] = None) -> tuple[pd.DataFrame, list[str]]:
     """
     Full preprocessing pipeline for visualization:
     1. Drop duplicate rows
@@ -187,9 +197,9 @@ def preprocess_for_visualization(file_path: str) -> tuple[pd.DataFrame, list[str
     4. Standard-scale numeric columns (z-score normalization) — stored as separate columns
     Returns the processed DataFrame and a list of preprocessing steps taken.
     """
-    df = load_dataset.invoke({"file_path": file_path})
+    df_data = _resolve_df(file_path, df)
     steps = []
-    processed = df.copy()
+    processed = df_data.copy()
 
     # 1. Drop duplicates
     n_dups = processed.duplicated().sum()
@@ -246,8 +256,9 @@ def preprocess_for_visualization(file_path: str) -> tuple[pd.DataFrame, list[str
 
 @tool
 def generate_chart_data(
-    file_path: str,
-    chart_type: str,
+    file_path: Optional[str] = None,
+    df: Optional[Any] = None,
+    chart_type: str = "bar",
     x_column: Optional[str] = None,
     y_column: Optional[str] = None,
     color_column: Optional[str] = None,
@@ -257,7 +268,7 @@ def generate_chart_data(
     Runs preprocessing pipeline (dedup, impute, outlier clip, scale) before plotting.
     """
     # Run full preprocessing on the complete dataset
-    processed, preprocess_steps = preprocess_for_visualization.invoke({"file_path": file_path})
+    processed, preprocess_steps = preprocess_for_visualization.invoke({"file_path": file_path, "df": df})
 
     color_palette = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#EC4899"]
 

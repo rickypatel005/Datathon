@@ -24,3 +24,4 @@ passlib[bcrypt]
 python-jose[cryptography]
 pytest
 pytest-cov
+openpyxl

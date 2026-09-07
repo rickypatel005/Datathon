@@ -23,4 +23,8 @@ htmlcov/
 *.db
 powershell.cmd
 powershell.bat
+uploads/
+backend/uploads/*.csv
+backend/uploads/*.xlsx
+backend/uploads/models/*.pkl
 

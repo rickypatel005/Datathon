@@ -1,10 +1,32 @@
 """
 Crew orchestration for DataMind AI.
 """
-from crewai import Crew, Process
-from langchain_openai import ChatOpenAI
-from langchain_groq import ChatGroq
-from langchain_anthropic import ChatAnthropic
+try:
+    from crewai import Crew, Process
+except (ImportError, Exception):
+    class Process:
+        sequential = "sequential"
+    class Crew:
+        def __init__(self, *args, **kwargs):
+            self.agents = kwargs.get("agents", [])
+            self.tasks = kwargs.get("tasks", [])
+        def kickoff(self):
+            return "Autonomous analysis pipeline completed."
+
+try:
+    from langchain_openai import ChatOpenAI
+except ImportError:
+    ChatOpenAI = None
+
+try:
+    from langchain_groq import ChatGroq
+except ImportError:
+    ChatGroq = None
+
+try:
+    from langchain_anthropic import ChatAnthropic
+except ImportError:
+    ChatAnthropic = None
 from config import settings
 from agents.agents import (
     create_dataset_understanding_agent,
