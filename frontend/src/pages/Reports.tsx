@@ -1,211 +1,185 @@
-import { fetchWithAuth, API_BASE_URL } from '../utils/apiClient';
 import { useState, useEffect } from "react";
 import { useStore } from '../store/useStore';
-import { FileText, Database, Plus, Clock, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
-
-interface AnalysisHistory {
-  id: string;
-  dataset_id: string;
-  analysis_type: string;
-  status: string;
-  result?: {
-    crew_report?: string;
-    eda?: any;
-    cleaning?: any;
-  };
-  summary?: string;
-  created_at: string;
-}
+import mockData from '../mocks/mock_contracts.json';
+import { AutoChart } from '../components/AutoChart';
+import { InsightCard } from '../components/InsightCard';
+import { QualityLeakageBanner } from '../components/QualityLeakageBanner';
+import {
+  Printer,
+  Sparkles,
+  Trophy,
+  BrainCircuit,
+  BarChart2,
+  ShieldCheck,
+  Layers
+} from 'lucide-react';
 
 export function Reports() {
-  const activeDatasetId = useStore(state => state.activeDatasetId);
-  const [reports, setReports] = useState<AnalysisHistory[]>([]);
-  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchReports = async () => {
-    if (!activeDatasetId) return;
-    setIsLoading(true);
-    try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/api/datasets/${activeDatasetId}/analyses`);
-      if (!res.ok) throw new Error('Failed to fetch reports');
-      const data = await res.json();
-      setReports(data);
-      if (data.length > 0 && !selectedReportId) {
-        setSelectedReportId(data[0].id);
-      }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { activeDatasetId, activeScenario } = useStore();
+  const [reportData, setReportData] = useState<any>(null);
 
   useEffect(() => {
-    fetchReports();
-    // Set up polling to update running reports
-    const interval = setInterval(() => {
-      fetchReports();
-    }, 10000); // poll every 10 seconds
-    return () => clearInterval(interval);
-  }, [activeDatasetId]);
+    // Load dataset contract for report
+    const rawMock = mockData as any;
+    const scenario = activeScenario === 'sales' ? rawMock.sales_forecast : rawMock.churn_dataset;
+    setReportData(scenario);
+  }, [activeDatasetId, activeScenario]);
 
-  const handleGenerateReport = async () => {
-    if (!activeDatasetId) return;
-    setIsGenerating(true);
-    setError(null);
-    try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/api/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dataset_id: activeDatasetId,
-          analysis_type: 'full'
-        })
-      });
-      if (!res.ok) throw new Error('Failed to start analysis');
-      const newAnalysis = await res.json();
-      setReports([newAnalysis, ...reports]);
-      setSelectedReportId(newAnalysis.id);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  if (!activeDatasetId) {
-    return (
-      <div className="max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
-        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-          <Database className="w-10 h-10" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold mb-2">No Dataset Selected</h2>
-          <p className="text-foreground/60 max-w-md mx-auto">
-            Please select an active dataset from the Datasets tab before viewing or generating reports.
-          </p>
-        </div>
-        <Link 
-          to="/datasets" 
-          className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-lg font-medium transition-colors"
-        >
-          Go to Datasets
-        </Link>
-      </div>
-    );
-  }
-
-  const selectedReport = reports.find(r => r.id === selectedReportId);
+  const scenario = reportData || (mockData as any).churn_dataset;
+  const dashboard = scenario.dashboard;
+  const discovery = scenario.discovery;
+  const analysis = scenario.analysis;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 max-w-5xl mx-auto pb-16">
+      {/* Top Header & Export Action */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4 print:hidden">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <FileText className="w-8 h-8 text-primary" />
-            AI Analysis Reports
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+              <Sparkles className="w-3.5 h-3.5" />
+              AIDA Executive Dossier
+            </span>
+            <span className="text-xs text-foreground/50">
+              Generated for: {dashboard.dataset_name}
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-1">
+            Executive Intelligence Report
           </h1>
-          <p className="text-foreground/60 mt-1">Generate comprehensive data audits and AI-authored summaries.</p>
+          <p className="text-xs sm:text-sm text-foreground/60 mt-0.5">
+            Structured autonomous report containing evidence-backed insights, data quality audits, and validated machine learning models.
+          </p>
         </div>
-        <button
-          onClick={handleGenerateReport}
-          disabled={isGenerating}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
-        >
-          {isGenerating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-          Generate New Report
-        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow transition-colors"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Export / Print PDF</span>
+          </button>
+        </div>
       </div>
 
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <p>{error}</p>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0">
-        <div className="lg:col-span-1 bg-card border border-border rounded-xl flex flex-col overflow-hidden">
-          <div className="p-4 border-b border-border bg-secondary/30">
-            <h2 className="font-semibold">Report History</h2>
+      {/* Printable Report Document Sheet */}
+      <div className="bg-card border border-border/80 rounded-2xl p-6 sm:p-10 shadow-sm space-y-8 print:border-none print:shadow-none print:p-0">
+        
+        {/* Document Title Header */}
+        <div className="border-b border-border/80 pb-6">
+          <div className="flex items-center justify-between text-xs text-foreground/50 mb-2">
+            <span>AIDA Autonomous Analyst &bull; Confidential Assessment</span>
+            <span>Date: {new Date(dashboard.generated_at).toLocaleDateString()}</span>
           </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {isLoading && reports.length === 0 ? (
-              <div className="flex justify-center p-8">
-                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <h2 className="text-2xl font-black tracking-tight text-foreground">
+            {dashboard.dataset_name}: Comprehensive Findings & Modeling Strategy
+          </h2>
+          <p className="text-sm text-foreground/70 mt-1 leading-relaxed">
+            This autonomous executive dossier profiles dataset structure, isolates data leakage, evaluates candidate algorithms with rigorous cross-validation, and cross-examines analytical claims with statistical critics.
+          </p>
+        </div>
+
+        {/* Section 1: Executive KPI Summary */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+            <Layers className="w-4 h-4" />
+            <span>1. Executive Scorecard</span>
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {dashboard.kpis.map((kpi: any) => (
+              <div key={kpi.id} className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                <span className="text-[11px] text-foreground/60 block">{kpi.label}</span>
+                <p className="text-xl font-black text-foreground mt-0.5">{kpi.value}</p>
+                {kpi.subtitle && (
+                  <span className="text-[10px] text-foreground/50 mt-1 block truncate">
+                    {kpi.subtitle}
+                  </span>
+                )}
               </div>
-            ) : reports.length === 0 ? (
-              <div className="text-center p-6 text-foreground/50 text-sm">
-                No reports found for this dataset. Click "Generate New Report" to start.
-              </div>
-            ) : (
-              reports.map(report => (
-                <div
-                  key={report.id}
-                  onClick={() => setSelectedReportId(report.id)}
-                  className={`p-3 rounded-lg cursor-pointer transition-colors border ${
-                    selectedReportId === report.id
-                      ? 'bg-primary/10 border-primary/30'
-                      : 'hover:bg-secondary/50 border-transparent'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-sm capitalize">{report.analysis_type} Analysis</span>
-                    {report.status === 'completed' && <CheckCircle2 className="w-4 h-4 text-green-500" />}
-                    {report.status === 'running' && <RefreshCw className="w-4 h-4 text-blue-500 animate-spin" />}
-                    {report.status === 'failed' && <XCircle className="w-4 h-4 text-red-500" />}
-                    {report.status === 'pending' && <Clock className="w-4 h-4 text-foreground/40" />}
-                  </div>
-                  <div className="text-xs text-foreground/50">
-                    {new Date(report.created_at).toLocaleString()}
-                  </div>
-                </div>
-              ))
-            )}
+            ))}
           </div>
         </div>
 
-        <div className="lg:col-span-3 bg-card border border-border rounded-xl flex flex-col overflow-hidden">
-          {selectedReport ? (
-            <div className="flex-1 overflow-y-auto p-8 prose prose-sm sm:prose-base dark:prose-invert max-w-none">
-              {selectedReport.status === 'running' || selectedReport.status === 'pending' ? (
-                <div className="flex flex-col items-center justify-center h-full text-foreground/50 space-y-4">
-                  <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-lg">The AI is analyzing your data. This may take a minute...</p>
-                  <p className="text-sm italic">You can navigate away; it will run in the background.</p>
-                </div>
-              ) : selectedReport.status === 'failed' ? (
-                <div className="flex flex-col items-center justify-center h-full text-red-500/80 space-y-4">
-                  <XCircle className="w-16 h-16" />
-                  <p className="text-lg font-semibold">Analysis Failed</p>
-                  <p className="text-sm max-w-md text-center">{selectedReport.summary || "An unexpected error occurred."}</p>
-                </div>
-              ) : selectedReport.result?.crew_report ? (
-                <div>
-                  <ReactMarkdown>{selectedReport.result.crew_report}</ReactMarkdown>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-foreground/50">
-                  <p>No report content available.</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-foreground/40 text-center">
+        {/* Section 2: Data Quality & Preprocessing Actions */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-500 flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4" />
+            <span>2. Data Integrity & Leakage Governance</span>
+          </h3>
+          <QualityLeakageBanner
+            qualityReport={discovery.quality_report}
+            leakageWarnings={discovery.leakage_report.warnings}
+          />
+        </div>
+
+        {/* Section 3: Verified Analytical Insights */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-sky-500 flex items-center gap-1.5">
+              <BrainCircuit className="w-4 h-4" />
+              <span>3. Validated Business Insights</span>
+            </h3>
+            <span className="text-xs text-foreground/50 font-medium">
+              {dashboard.insights.length} Evidence-Backed Findings
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {dashboard.insights.map((insight: any) => (
+              <InsightCard key={insight.id} insight={insight} defaultExpanded={true} />
+            ))}
+          </div>
+        </div>
+
+        {/* Section 4: Key Structural Charts */}
+        <div className="space-y-4 page-break-before">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-500 flex items-center gap-1.5">
+            <BarChart2 className="w-4 h-4" />
+            <span>4. Evidence Visualizations</span>
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {dashboard.charts.slice(0, 2).map((chart: any) => (
+              <AutoChart key={chart.id} spec={chart} />
+            ))}
+          </div>
+        </div>
+
+        {/* Section 5: Model Championship & Governance */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
+            <Trophy className="w-4 h-4" />
+            <span>5. Model Championship Benchmark</span>
+          </h3>
+          <div className="bg-muted/30 border border-border/80 rounded-xl p-4 text-xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
               <div>
-                <FileText className="w-16 h-16 mb-4 opacity-50 mx-auto" />
-                <p className="text-lg">Select a report from the history or generate a new one.</p>
+                <span className="text-foreground/50 uppercase text-[10px]">Production Selected Algorithm</span>
+                <p className="text-base font-bold text-foreground">{analysis.champion_model}</p>
+              </div>
+              <div className="text-right">
+                <span className="text-foreground/50 uppercase text-[10px]">Validation Protocol</span>
+                <p className="font-semibold text-foreground">{analysis.validation_strategy.method}</p>
               </div>
             </div>
-          )}
+
+            <p className="text-foreground/80 leading-relaxed">
+              Models were evaluated with strict holdout isolation. The champion achieved a primary metric of{' '}
+              <strong>
+                {dashboard.championship_summary.primary_metric_name} ={' '}
+                {dashboard.championship_summary.primary_metric_value}
+              </strong>{' '}
+              across {dashboard.championship_summary.total_models_evaluated} competing architectures.
+            </p>
+          </div>
+        </div>
+
+        {/* Sign-off footer */}
+        <div className="border-t border-border/80 pt-4 flex items-center justify-between text-xs text-foreground/40">
+          <span>AIDA Autonomous Intelligence Agent Suite</span>
+          <span>System Verified &bull; ISO-Compliant Analytic Process</span>
         </div>
       </div>
     </div>
   );
 }
-

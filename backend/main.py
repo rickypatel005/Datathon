@@ -10,6 +10,7 @@ from database import models
 Base.metadata.create_all(bind=engine)
 
 from api.routes import router as api_router
+from api.pipeline_routes import router as pipeline_router
 
 app = FastAPI(
     title="DataMind AI API",
@@ -27,6 +28,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api")
+app.include_router(pipeline_router, prefix="/api")
 
 @app.get("/")
 def read_root():

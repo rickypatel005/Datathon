@@ -4,105 +4,81 @@
 
 @layer base {
   /* ═══════════════════════════════════════════════════════════════
-     DARK MODE — Deep navy canvas with vivid emerald/cyan accents
+     AIDA STITCH DESIGN SYSTEM — Precision Scientific Observability
      ═══════════════════════════════════════════════════════════════ */
   :root,
   .dark {
-    --background: 220 25% 6%;          /* #0D1117 — rich near-black navy */
-    --foreground: 210 20% 95%;         /* #EFF2F6 — soft white text */
+    --background: 222 55% 10%;        /* #0b1326 deep obsidian-slate */
+    --foreground: 228 92% 93%;        /* #dae2fd crisp luminous text */
 
-    --card: 220 22% 10%;              /* #151B28 — slightly lifted card */
-    --card-foreground: 210 20% 95%;
+    --card: 222 41% 13%;              /* #131b2e surface-container-low */
+    --card-foreground: 228 92% 93%;
 
-    --primary: 160 72% 46%;           /* #1DB875 — vivid emerald green */
+    --primary: 239 84% 67%;           /* #6366f1 electric indigo */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 22% 14%;         /* #1C2333 — muted navy surface */
-    --secondary-foreground: 210 15% 78%;
+    --secondary: 201 100% 74%;        /* #7bd0ff telemetry cyan */
+    --secondary-foreground: 197 100% 15%;
 
-    --accent: 199 89% 48%;            /* #0EA5E9 — sky blue */
+    --accent: 271 91% 65%;            /* #a855f7 model amethyst */
     --accent-foreground: 0 0% 100%;
 
-    --border: 220 18% 18%;            /* #262F3D — subtle dark border */
-    --muted: 220 20% 13%;
-    --muted-foreground: 215 15% 52%;
+    --border: 221 28% 19%;            /* #222a3d surface-container-high */
+    --muted: 222 37% 15%;             /* #171f33 surface-container */
+    --muted-foreground: 225 15% 70%;  /* #c7c4d7 */
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --neutral: 220 6% 47%;
   }
 
-  /* ═══════════════════════════════════════════════════════════════
-     LIGHT MODE — Crisp white canvas with emerald/blue pop
-     ═══════════════════════════════════════════════════════════════ */
   .light {
-    --background: 210 20% 98%;        /* #F8FAFC — very light blue-gray */
-    --foreground: 220 25% 12%;        /* #171E2B — near-black text */
-
-    --card: 0 0% 100%;                /* #FFFFFF — pure white card */
-    --card-foreground: 220 25% 12%;
-
-    --primary: 160 72% 39%;           /* #17945F — rich emerald green */
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 239 84% 67%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 18% 94%;         /* #EEF1F5 — pale gray-blue */
-    --secondary-foreground: 220 20% 25%;
-
-    --accent: 199 89% 48%;            /* #0EA5E9 — sky blue */
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 271 91% 65%;
     --accent-foreground: 0 0% 100%;
-
-    --border: 220 13% 88%;            /* #DCDFE5 — soft gray border */
+    --border: 220 13% 88%;
     --muted: 220 14% 95%;
     --muted-foreground: 220 9% 46%;
-
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-
-    --neutral: 220 6% 47%;
   }
 
   body {
-    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] font-sans antialiased;
-  }
-
-  * {
-    @apply transition-colors duration-150;
-  }
-
-  /* Fix native select dropdowns respecting dark/light theme */
-  :root, .dark {
-    color-scheme: dark;
-  }
-
-  .light {
-    color-scheme: light;
-  }
-
-  select {
-    background-color: hsl(var(--secondary));
+    background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    border-color: hsl(var(--border));
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  select option {
-    background-color: hsl(var(--card));
-    color: hsl(var(--foreground));
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
   }
 
-  /* Scrollbar styling */
+  .font-mono, kbd, code {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Custom subtle scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
-    background: hsl(var(--background));
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground));
+    background: rgba(255, 255, 255, 0.2);
   }
 }

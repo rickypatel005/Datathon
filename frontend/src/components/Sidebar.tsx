@@ -1,31 +1,46 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import datamindLogo from '../assets/datamind-logo.png';
 import {
   LayoutDashboard,
   Database,
-  MessageSquare,
+  GitFork,
+  Lightbulb,
+  Trophy,
   BarChart2,
-  BrainCircuit,
   FileText,
-  Settings,
+  MessageSquare,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileSpreadsheet,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import clsx from 'clsx';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: Database, label: 'Datasets', path: '/datasets' },
-  { icon: MessageSquare, label: 'AI Chat', path: '/chat' },
-  { icon: BarChart2, label: 'Visualizations', path: '/visualizations' },
-  { icon: BrainCircuit, label: 'ML Models', path: '/models' },
-  { icon: FileText, label: 'Reports', path: '/reports' },
+  { icon: LayoutDashboard, label: 'Overview', path: '/', badge: null },
+  { icon: Database, label: 'Datasets', path: '/datasets', badge: '2' },
+  { icon: GitFork, label: 'Investigation Pipeline', path: '/pipeline', badge: '6/6' },
+  { icon: Lightbulb, label: 'Insights Workspace', path: '/insights', badge: '3 Validated' },
+  { icon: Trophy, label: 'Model Championship', path: '/models', badge: 'LGBM' },
+  { icon: BarChart2, label: 'Visualizations', path: '/visualizations', badge: 'Auto' },
+  { icon: FileText, label: 'Executive Report', path: '/reports', badge: 'Ready' },
+  { icon: MessageSquare, label: 'AI Assistant', path: '/chat', badge: 'Live' },
 ];
 
 export function Sidebar() {
-  const { isSidebarOpen, toggleSidebar, logout } = useStore();
+  const {
+    isSidebarOpen,
+    toggleSidebar,
+    logout,
+    theme,
+    setTheme,
+    dashboardContract,
+    activeScenario,
+    setActiveScenario,
+    setDemoMode
+  } = useStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -33,74 +48,159 @@ export function Sidebar() {
     navigate('/login');
   };
 
+  const datasetName = dashboardContract?.dataset_name || (activeScenario === 'sales' ? 'retail_daily_sales.csv' : 'customer_churn.csv');
+
   return (
-    <div className={clsx(
-      "h-screen bg-card border-r border-border transition-all duration-300 flex flex-col relative",
-      isSidebarOpen ? "w-64" : "w-20"
-    )}>
-      <div className="p-4 flex items-center justify-between border-b border-border h-16">
-        {isSidebarOpen && (
-          <div className="flex items-center gap-2.5">
-            <img src={datamindLogo} alt="DataMind AI" className="w-8 h-8 object-contain rounded-md" />
-            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-[#1DB875] to-[#0EA5E9] bg-clip-text text-transparent">DataMind AI</span>
+    <div
+      className={clsx(
+        "h-screen bg-surface-container-lowest border-r border-border transition-all duration-300 flex flex-col relative z-50 select-none",
+        isSidebarOpen ? "w-72" : "w-20"
+      )}
+    >
+      {/* Brand Header */}
+      <div className="h-16 px-4 flex items-center justify-between border-b border-border/80 bg-surface-container-low/60">
+        {isSidebarOpen ? (
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-primary-foreground font-black text-sm shadow-md shadow-primary/20">
+                AI
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-bold text-lg tracking-tight text-on-surface">
+                  AIDA
+                </span>
+                <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded bg-surface-container-high text-secondary font-semibold">
+                  v2.4 AUTO
+                </span>
+              </div>
+            </div>
           </div>
-        )}
-        {!isSidebarOpen && (
+        ) : (
           <div className="w-full flex justify-center">
-            <img src={datamindLogo} alt="DataMind AI" className="w-8 h-8 object-contain rounded-md" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-primary-foreground font-black text-sm">
+              AI
+            </div>
           </div>
         )}
       </div>
 
+      {/* Collapse/Expand Floating Button */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-20 bg-card border border-border rounded-full p-1 hover:bg-primary/20 transition-colors z-10"
+        className="absolute -right-3 top-20 bg-surface-container-high border border-border rounded-full p-1 hover:bg-primary/20 transition-colors z-50 text-on-surface"
       >
-        {isSidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        {isSidebarOpen ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
       </button>
 
-      <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-2">
+      {/* Active Dataset Inspection Card */}
+      {isSidebarOpen && (
+        <div className="p-3">
+          <div className="p-3 rounded-xl bg-surface-container-low border border-border/70 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <FileSpreadsheet className="w-4 h-4 text-secondary flex-shrink-0" />
+                <span className="font-mono text-xs text-on-surface font-semibold truncate">
+                  {datasetName}
+                </span>
+              </div>
+              <span className="w-2 h-2 rounded-full bg-secondary animate-ping shrink-0" />
+            </div>
+
+            <div className="font-mono text-[10px] text-on-surface-variant flex items-center gap-1">
+              <span>{activeScenario === 'sales' ? '730 rows · 12 cols' : '7,043 rows · 21 cols'}</span>
+              <span>&bull;</span>
+              <span className="text-emerald-400 font-medium">Q94.2/100</span>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <span className="px-1.5 py-0.5 rounded bg-surface-container text-tertiary font-mono text-[9px] font-semibold uppercase">
+                {activeScenario === 'sales' ? 'Time Series' : 'Classification'}
+              </span>
+              <button
+                onClick={() => {
+                  setDemoMode(true);
+                  setActiveScenario(activeScenario === 'churn' ? 'sales' : 'churn');
+                }}
+                className="text-[10px] text-on-surface-variant hover:text-secondary flex items-center gap-1 transition-colors"
+              >
+                <span>Switch Scenario</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation Links */}
+      <div className="flex-1 overflow-y-auto py-2 px-2.5 space-y-1">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
-            className={({ isActive }) => clsx(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
-              isActive
-                ? "bg-primary/10 text-primary font-medium"
-                : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
-            )}
+            className={({ isActive }) =>
+              clsx(
+                "flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-medium",
+                isActive
+                  ? "bg-primary text-white shadow-sm shadow-primary/20 font-semibold"
+                  : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+              )
+            }
             title={!isSidebarOpen ? item.label : undefined}
           >
-            <item.icon className="w-5 h-5 flex-shrink-0" />
-            {isSidebarOpen && <span>{item.label}</span>}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <item.icon className="w-4 h-4 flex-shrink-0" />
+              {isSidebarOpen && <span className="truncate">{item.label}</span>}
+            </div>
+            {isSidebarOpen && item.badge && (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-surface-container-high/80 text-secondary font-semibold">
+                {item.badge}
+              </span>
+            )}
           </NavLink>
         ))}
       </div>
 
-      <div className="p-4 border-t border-border flex flex-col gap-2">
-        <NavLink
-          to="/settings"
-          className={({ isActive }) => clsx(
-            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
-            isActive
-              ? "bg-primary/10 text-primary font-medium"
-              : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
-          )}
-          title={!isSidebarOpen ? "Settings" : undefined}
-        >
-          <Settings className="w-5 h-5 flex-shrink-0" />
-          {isSidebarOpen && <span>Settings</span>}
-        </NavLink>
-        
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-red-500 hover:bg-red-500/10 w-full text-left"
-          title={!isSidebarOpen ? "Log out" : undefined}
-        >
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          {isSidebarOpen && <span>Log out</span>}
-        </button>
+      {/* Telemetry & User Footer */}
+      <div className="p-3 border-t border-border/80 bg-surface-container-low/40 space-y-2">
+        {isSidebarOpen && (
+          <div className="p-2 rounded-lg bg-surface-container-lowest font-mono text-[10px] text-on-surface-variant flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Engine: Ready
+            </span>
+            <span>RAM: 1.4 GB</span>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center font-bold text-xs text-white shrink-0 shadow-sm">
+              SC
+            </div>
+            {isSidebarOpen && (
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-on-surface truncate">Dr. Sarah Chen</p>
+                <p className="font-mono text-[10px] text-on-surface-variant truncate">Lead Analyst</p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              title="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+              title="Log out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
