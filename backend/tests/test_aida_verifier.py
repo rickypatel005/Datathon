@@ -1,25 +1,25 @@
 """Unit and integration tests for AIDA Trust Layer and Deterministic Verifier Node."""
 
 import pytest
-from backend.aida.contracts.discovery_contract import DiscoveryContract
-from backend.aida.contracts.analysis_contract import AnalysisContract
-from backend.aida.contracts.insight_contract import (
+from aida.contracts.discovery_contract import DiscoveryContract
+from aida.contracts.analysis_contract import AnalysisContract
+from aida.contracts.insight_contract import (
     CandidateInsight,
     MetricClaim,
     InsightContract,
     VerifiedInsight,
     RejectedInsight,
 )
-from backend.aida.state import AidaState, CritiqueEvaluation
-from backend.aida.verifier.metrics import verify_metric_exactness
-from backend.aida.verifier.correlations import verify_correlation_claim
-from backend.aida.verifier.feature_importance import (
+from aida.state import AidaState, CritiqueEvaluation
+from aida.verifier.metrics import verify_metric_exactness
+from aida.verifier.correlations import verify_correlation_claim
+from aida.verifier.feature_importance import (
     verify_feature_importance_value,
     verify_top_features_ranking,
 )
-from backend.aida.verifier.confidence import calculate_deterministic_confidence
-from backend.aida.verifier.verifier_node import verifier_node
-from backend.aida.mocks.mock_contracts import (
+from aida.verifier.confidence import calculate_deterministic_confidence
+from aida.verifier.verifier_node import verifier_node
+from aida.mocks.mock_contracts import (
     get_mock_discovery_contract,
     get_mock_analysis_contract,
     get_mock_candidate_insights,
@@ -167,7 +167,7 @@ def test_feature_importance_ranking_inverted_failure(analysis_fixture):
 
 def test_confidence_zero_on_failed_checks():
     """Confidence MUST be strictly 0.0 if any check fails."""
-    from backend.aida.contracts.insight_contract import VerificationCheckResult
+    from aida.contracts.insight_contract import VerificationCheckResult
     checks = [
         VerificationCheckResult(
             check_type="metric_exactness",
@@ -184,7 +184,7 @@ def test_confidence_zero_on_failed_checks():
 
 def test_confidence_sample_size_and_p_value_sensitivity():
     """High sample size and statistical significance boost deterministic confidence."""
-    from backend.aida.contracts.insight_contract import VerificationCheckResult
+    from aida.contracts.insight_contract import VerificationCheckResult
     good_checks = [
         VerificationCheckResult(
             check_type="metric_exactness",
